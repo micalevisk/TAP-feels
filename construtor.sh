@@ -133,6 +133,7 @@ _atributos(){
   readonly NOME_CONSTRUTOR="${FILENAME%%.java}";
 
   readonly ANALISE=$(grep -n -m1 -Po '(?<=@att)[[:blank:]]*(\d+)' ${FILEPATH}); ## <numeroDaLinha>:<quantidadeDeAtributos>
+  [[ -z "$ANALISE" ]] && { _showLogMessage "a tag não foi encontrada"; _especificacoes; }
   QTD_ATT=$(grep -Poe '(?<=:)\w' <<< $ANALISE); # cut -d: -f2
 
   readonly ARQUIVO="$(sed -r "s/.*(@att${QTD_ATT}).*/\1/1" ${FILEPATH} | ${binSed} ${REMOVER_COMENTARIOS} | sed '/^[[:blank:]]*$/d ; s/^[[:blank:]]*//')";
@@ -144,7 +145,7 @@ _atributos(){
   ((Sorted)) && ATRIBUTOSstr=$(sort -d <<< "$ATRIBUTOSstr");
 
   ATRIBUTOS=($ATRIBUTOSstr);
-  [[ $QTD_ATT -ne ${#ATRIBUTOS[@]} ]] && { echo _showLogMessage "a quantidade de atributos não confere com a especificada pela tag"; exit 5; }
+  [[ $QTD_ATT -ne ${#ATRIBUTOS[@]} ]] && { _showLogMessage "a quantidade de atributos não confere com a especificada pela tag"; exit 5; }
 }
 
 
@@ -175,11 +176,12 @@ _gerarConstrutor(){
 _alterarArquivo(){
   _showLogMessage "ALTERANDO (OU NÃO) ARQUIVO ORIGINAL"
 
+  ((Delete)) || Delete=
 
   #### [ CRIAR ARQUIVO TEMPORÁRIO CUJO O CONTEÚDO SEJA O CONSTRUTOR ] ####
   readonly ARQ_CONSTRUTOR=$(_criarArquivoTempComConteudo "\n$CONSTRUTOR\n");
   # cat $ARQ_CONSTRUTOR;
-  local COMANDO_SED="${LINHA_INSERCAO}r ${ARQ_CONSTRUTOR}"
+  local COMANDO_SED="${Delete:+"/@att${QTD_ATT}/{d;q} ;"} ${LINHA_INSERCAO}r ${ARQ_CONSTRUTOR}";
   local OPTS_SED=
 
   #### [ INSERIR O CONSTRUTOR NO ARQUIVO PASSADO NA LINHA ENCONTRADA ] ####
@@ -187,7 +189,6 @@ _alterarArquivo(){
   ((CONSTRUTOR_EXISTE)) && COMANDO_SED=
 
   sed $OPTS_SED -e "${COMANDO_SED}" "$FILEPATH";
-  ((Delete)) && sed "/@att${QTD_ATT}/{d;q}" "$FILEPATH";
 
   rm -f $ARQ_CONSTRUTOR;
 }
@@ -240,7 +241,7 @@ do
     * ) break ;;
   esac
   # OPTS_PERL+=$1" ";
-  OPTS_PERL+=" "-$opt;
+  OPTS_PERL+=" "${opt:+-$opt};
   shift;
 done
 : '
