@@ -3,9 +3,9 @@
 
 
 ```bash
-wget https://github.com/micalevisk/TAP_feelings/blob/master/construtor.sh
+wget https://raw.githubusercontent.com/micalevisk/TAP_feelings/master/construtor.sh
 wget https://raw.githubusercontent.com/micalevisk/TAP_feelings/master/constructorGenerator.pl
-wget https://github.com/micalevisk/TAP_feelings/blob/master/removerComentarios.sed
+wget https://raw.githubusercontent.com/micalevisk/TAP_feelings/master/removerComentarios.sed
 ```
 ```bash
 git clone https://github.com/micalevisk/TAP_feelings.git
