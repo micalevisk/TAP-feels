@@ -196,13 +196,13 @@ _alterarArquivo(){
 
 
 _main(){
+  (($Verbose)) || exec 2>/dev/null;
 
   _checkDependencies;
 
   FILEPATH=${@%% };
   [ ! -r "$FILEPATH" ] && _especificacoes;
 
-  (($Verbose)) || exec 2>/dev/null;
 
 
   ####################
