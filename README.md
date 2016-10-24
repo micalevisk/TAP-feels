@@ -1,14 +1,19 @@
 *~ explanations coming soon*
 
-## constructorGenerator.pl
-> **Note:**
-> - StackEdit is accessible offline after the application has been loaded for the first time.
-> - Your local documents are not shared between different browsers or computers.
 
 
-## construtor.sh
-> **Note:**
+```bash
+wget https://github.com/micalevisk/TAP_feelings/blob/master/construtor.sh
+wget https://raw.githubusercontent.com/micalevisk/TAP_feelings/master/constructorGenerator.pl
+wget https://github.com/micalevisk/TAP_feelings/blob/master/removerComentarios.sed
+```
+```bash
+git clone https://github.com/micalevisk/TAP_feelings.git
+```
 
+## após baixar
+```bash
+chmod +x constructorGenerator.pl construtor.sh removerComentarios.sed
+```
 
-## removerComentarios.sed
-> **Note:**
+[emojis](http://www.webpagefx.com/tools/emoji-cheat-sheet/)
