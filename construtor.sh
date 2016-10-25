@@ -1,5 +1,5 @@
 #!/bin/bash
-# //
+# //  v1.25-0
 # //  Constroi e insere (ou retorna) automaticamente um metodo construtor de uma classe em qualquer codigo Java.
 # //  Created by Micael Levi on 10/23/2016
 # //  Copyright (c) 2016 mllc@icomp.ufam.edu.br; All rights reserved.
