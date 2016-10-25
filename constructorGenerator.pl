@@ -66,6 +66,7 @@ $acesso		= $options{m}%(keys %MODIFICADORES_ACESSO), if defined($options{m});
 ####################################
 my $nomeArquivo = $0; $nomeArquivo =~ s/^.\///;
 my $nArgs = $#ARGV + 1;
+
 if($nArgs < 2){
 	showDetails();
 	help();
@@ -89,7 +90,7 @@ foreach (@PARAMETROS){
 
 	push(@CORPO, $linha);
 
-	$_ =~ s/\W/ /; # apaga qualquer caractere que não seja alfanumérico.
+	$_ =~ s/.*/$type $name/;
 }
 
 

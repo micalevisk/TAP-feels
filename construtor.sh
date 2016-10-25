@@ -17,8 +17,10 @@
 # --------------------[ CONFIGURAÇÕES ]-------------------- #
 readonly REMOVER_COMENTARIOS="removerComentarios.sed"
 readonly GERADOR_CONSTRUTOR="constructorGenerator.pl"
-readonly binSed="/usr/bin/sed -nf"
-readonly binPerl="/usr/bin/perl"
+readonly binSed="sed -nf"
+readonly binPerl="perl"
+# readonly binSed="/usr/bin/sed -nf"
+# readonly binPerl="/usr/bin/perl"
 readonly sep=:
 # ----------------------------------------------------------- #
 
@@ -38,6 +40,7 @@ SUFIX=""
 FILEPATH=""
 NOME_CONSTRUTOR=""
 declare -i QTD_ATT=0
+declare -i LINHA_TAG=0
 declare -a ATRIBUTOS=0
 declare -i LINHA_INSERCAO=-1
 CONSTRUTOR=""
@@ -126,25 +129,30 @@ EOF
 
 #### [ LER E DEFINIR ATRIBUTOS ] ####
 _atributos(){
-  _showLogMessage "LENDO E DEFININDO ATRIBUTOS"
+  _showLogMessage "LENDO E DEFININDO ATRIBUTOS";
 
 
-  FILENAME=$(grep -Poie '\w+\.java' <<< ${FILEPATH} | sed -r 's/(.)(.+)/\U\1\L\2/');
+  FILENAME=$(grep -Poie '\w+\.java' <<< ${FILEPATH} | sed -r 's/(.)/\U\1/');
   readonly NOME_CONSTRUTOR="${FILENAME%%.java}";
 
-  readonly ANALISE=$(grep -n -m1 -Po '(?<=@att)[[:blank:]]*(\d+)' ${FILEPATH}); ## <numeroDaLinha>:<quantidadeDeAtributos>
+  readonly ANALISE=$(grep -n -m1 -Po '(?<=@att)[[:blank:]]*(\d+)' ${FILEPATH}); ## <numeroDaLinha>:<quantidadeDeAtributos> DO ARQUIVO ORIGINAL
   [[ -z "$ANALISE" ]] && { _showLogMessage "a tag não foi encontrada"; _especificacoes; }
-  QTD_ATT=$(grep -Poe '(?<=:)\w' <<< $ANALISE); # cut -d: -f2
+  QTD_ATT=$(grep -Po '(?<=:)[[:blank:]]*\d' <<< "$ANALISE"); # cut -d: -f2
 
-  readonly ARQUIVO="$(sed -r "s/.*(@att${QTD_ATT}).*/\1/1" ${FILEPATH} | ${binSed} ${REMOVER_COMENTARIOS} | sed '/^[[:blank:]]*$/d ; s/^[[:blank:]]*//')";
-  declare -i LINHA_TAG=$( sed -n "/@att${QTD_ATT}/{=;q;}" <<< "${ARQUIVO}");
+  # ARQUIVO_TRATADO=$(_criarArquivoTempComConteudo "$CONTEUDO_TRATADO");
+  readonly ARQUIVO="$(sed -r "s/.*(@att[[:blank:]]*${QTD_ATT}).*/\1/1" ${FILEPATH} | ${binSed} ${REMOVER_COMENTARIOS} | sed '/^[[:blank:]]*$/d ; s/^[[:blank:]]*//')";
+  LINHA_TAG=$(sed -n "/@att[[:blank:]]*${QTD_ATT}/{=;q;}" <<< "${ARQUIVO}");
+  [[ -z "$ARQUIVO" || $LINHA_TAG -eq 0 ]] && { _showLogMessage "erro ao ler linha da tag"; exit 4; }
 
-  local linhaInicial=$((LINHA_TAG+1));
-  local linhaFinal=$((LINHA_TAG+QTD_ATT));
+  local linhaInicial=$((LINHA_TAG+1));      # linha em que se inicia as declarações.
+  local linhaFinal=$((LINHA_TAG+QTD_ATT));  # linha que tem a última declaração.
+
   ATRIBUTOSstr=$(sed -n "${linhaInicial} , ${linhaFinal} p" <<< "$ARQUIVO" | sed -r "s/(\w+)[[:blank:]]+(\w+)\W*/\2${sep}\1/"); # ATRIBUTOS=$(grep -A${QTD_ATT} -i -w "@att${QTD_ATT}" <<< "$ARQUIVO" | tail -${QTD_ATT} | sed -r "s/(\w+)[[:blank:]]+(\w+)\W*/\2${sep}\1/");
   ((Sorted)) && ATRIBUTOSstr=$(sort -d <<< "$ATRIBUTOSstr");
 
+
   ATRIBUTOS=($ATRIBUTOSstr);
+
   [[ $QTD_ATT -ne ${#ATRIBUTOS[@]} ]] && { _showLogMessage "a quantidade de atributos não confere com a especificada pela tag"; exit 5; }
 }
 
@@ -154,10 +162,13 @@ _linhaConstrutor(){
   _showLogMessage "RECUPERANDO LINHA EM QUE SERÁ INSERIDO"
 
 
-  #1) Se o construtor default estiver presente (recupera a linha da última):
+  #1) Se o construtor default estiver presente (recupera a linha da última chave)
   LINHA_INSERCAO=$(sed -rn "/${NOME_CONSTRUTOR}[[:blank:]]*\(\)/ , /}/ =" ${FILEPATH} | tail -1);
-  #2) Se o construtor default não estiver no código (recupera a linha da última chave fechada ):
-  [[ $LINHA_INSERCAO -le 0 ]] && LINHA_INSERCAO=$(sed -n '/}/ , /$/{ $b; =; }' ${FILEPATH} | tail -1);
+
+  #2) Se o construtor default não estiver no código (recupera a linha da última chave fechada)
+  # [[ $LINHA_INSERCAO -le 0 ]] && LINHA_INSERCAO=$(sed -n '/}/{ $b; =; }' ${FILEPATH} | tail -1);
+  [[ $LINHA_INSERCAO -le 0 ]] && { LINHA_INSERCAO=$(sed -n '/}/=' ${FILEPATH} | tail -1); ((--LINHA_INSERCAO)); }
+  [[ $LINHA_INSERCAO -le 0 ]] && { _showLogMessage "erro ao identificar a linha de inserção"; exit 6; }
 }
 
 
@@ -166,7 +177,7 @@ _gerarConstrutor(){
   _showLogMessage "GERANDO O MÉTODO CONSTRUTOR PARAMETRIZADO"
 
   readonly CONSTRUTOR="$(${binPerl} ${GERADOR_CONSTRUTOR} $OPTS_PERL $FILENAME ${ATRIBUTOS[@]})";
-  readonly PROTOTIPO="$(grep -m1 -Eo '\w+\(.+)' <<< "$CONSTRUTOR")";
+  readonly PROTOTIPO="$(grep -m1 -Eo '\w+\(.+\)' <<< "$CONSTRUTOR")"; # FIXME
 
   #### [ VERIFICAR SE ALGUM CONSTRUTOR COM A MESMA QUANTIDADE DE ATRIBUTOS] ####
   ((OverWrite)) || CONSTRUTOR_EXISTE=$(grep -c -w "${PROTOTIPO}" ${FILEPATH});
@@ -176,17 +187,17 @@ _gerarConstrutor(){
 _alterarArquivo(){
   _showLogMessage "ALTERANDO (OU NÃO) ARQUIVO ORIGINAL"
 
-  ((Delete)) || Delete=
-
   #### [ CRIAR ARQUIVO TEMPORÁRIO CUJO O CONTEÚDO SEJA O CONSTRUTOR ] ####
   readonly ARQ_CONSTRUTOR=$(_criarArquivoTempComConteudo "\n$CONSTRUTOR\n");
   # cat $ARQ_CONSTRUTOR;
-  local COMANDO_SED="${Delete:+"/@att${QTD_ATT}/{d;q} ;"} ${LINHA_INSERCAO}r ${ARQ_CONSTRUTOR}";
+  # local COMANDO_SED="${Delete:+"/@att[[:blank:]]*${QTD_ATT}/{d;q}; "} ${LINHA_INSERCAO}r ${ARQ_CONSTRUTOR}";
+  local COMANDO_SED="${LINHA_INSERCAO}r ${ARQ_CONSTRUTOR}";
   local OPTS_SED=
 
   #### [ INSERIR O CONSTRUTOR NO ARQUIVO PASSADO NA LINHA ENCONTRADA ] ####
   ((InPlace)) && OPTS_SED=-i${SUFIX}
-  ((CONSTRUTOR_EXISTE)) && COMANDO_SED=
+  ((CONSTRUTOR_EXISTE)) && COMANDO_SED="";
+  ((Delete)) && COMANDO_SED="/@att[[:blank:]]*${QTD_ATT}/{d;q}; $COMANDO_SED";
 
   sed $OPTS_SED -e "${COMANDO_SED}" "$FILEPATH";
 
@@ -229,7 +240,7 @@ do
   opt="";
   case "$1" in
     -h | --help ) _help; opt=h ;;
-    -v | --verbose ) Verbose=$(NOT $Verbose); opt=v ;;
+    -v | --verbose ) Verbose=$(NOT $Verbose) ;;
     -o | --over-write ) OverWrite=$(NOT $OverWrite);;
     -d | --delete ) Delete=$(NOT $Delete) ;;
     -l | --one-line ) OneLine=$(NOT $OneLine); opt=l ;;
@@ -240,8 +251,7 @@ do
     -- ) shift; break ;;
     * ) break ;;
   esac
-  # OPTS_PERL+=$1" ";
-  OPTS_PERL+=" "${opt:+-$opt};
+  OPTS_PERL+=" ${opt:+-$opt}";
   shift;
 done
 : '
