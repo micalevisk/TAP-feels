@@ -1,5 +1,3 @@
-# TODO dividir etapas em funções.
-
 use strict;
 use warnings;
 use Getopt::Std;
