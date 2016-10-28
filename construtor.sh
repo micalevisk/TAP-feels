@@ -64,11 +64,16 @@ NOT(){
 
 
 _showLogMessage(){
-  if [ $# -ge 1 ]; then
-    local msg="[${1^^}]";
-    local N=$(($RANDOM % 8 + 31));
-    echo -e "\033[40;${N};1m${msg}\033[m" 1>&2;
-  fi
+  [ $# -lt 1 ] && return;
+
+  local msg="[${1^^}]";
+  local N=$(($RANDOM % 8 + 31));
+  msg="\033[40;${N};1m${msg}\033[m";
+  [[ -z "$2" ]] && echo -e "$msg" 1>&2 || echo -e "$msg" 1>&3 2>&4;
+}
+_ERRO(){
+  [ $# -lt 1 ] && return;
+  _showLogMessage "$1" "MOSTRAR";
 }
 _criarArquivoTempComConteudo(){
   _showLogMessage "CRIANDO ARQUIVO TEMPORÁRIO"
@@ -91,10 +96,10 @@ _checkDependencies(){
   if not command -v tail >/dev/null 2>&1; then ERROR+=5; fi
   if not command -v mktemp >/dev/null 2>&1; then ERROR+=6; fi
 
-  [ -x "$REMOVER_COMENTARIOS" ] || ERROR+=7
-  [ -x "$GERADOR_CONSTRUTOR" ] || ERROR+=8
+  [ -r "$REMOVER_COMENTARIOS" ] || ERROR+=7
+  [ -r "$GERADOR_CONSTRUTOR" ] || ERROR+=8
   ((ERROR)) && {
-    _showLogMessage "Erro nas dependencias! ($ERROR)";
+    _ERRO "Erro nas dependencias! ($ERROR)";
     exit 10;
   }
 }
@@ -136,13 +141,13 @@ _atributos(){
   readonly NOME_CONSTRUTOR="${FILENAME%%.java}";
 
   readonly ANALISE=$(grep -n -m1 -Po '(?<=@att)[[:blank:]]*(\d+)' ${FILEPATH}); ## <numeroDaLinha>:<quantidadeDeAtributos> DO ARQUIVO ORIGINAL
-  [[ -z "$ANALISE" ]] && { _showLogMessage "a tag não foi encontrada"; _especificacoes; }
+  [[ -z "$ANALISE" ]] && { _ERRO "a tag não foi encontrada"; _especificacoes; }
   QTD_ATT=$(grep -Po '(?<=:)[[:blank:]]*\d' <<< "$ANALISE"); # cut -d: -f2
 
   # ARQUIVO_TRATADO=$(_criarArquivoTempComConteudo "$CONTEUDO_TRATADO");
   readonly ARQUIVO="$(sed -r "s/.*(@att[[:blank:]]*${QTD_ATT}).*/\1/1" ${FILEPATH} | ${binSed} ${REMOVER_COMENTARIOS} | sed '/^[[:blank:]]*$/d ; s/^[[:blank:]]*//')";
   LINHA_TAG=$(sed -n "/@att[[:blank:]]*${QTD_ATT}/{=;q;}" <<< "${ARQUIVO}");
-  [[ -z "$ARQUIVO" || $LINHA_TAG -eq 0 ]] && { _showLogMessage "erro ao ler linha da tag"; exit 4; }
+  [[ -z "$ARQUIVO" || $LINHA_TAG -eq 0 ]] && { _ERRO "erro ao ler linha da tag"; exit 4; }
 
   local linhaInicial=$((LINHA_TAG+1));      # linha em que se inicia as declarações.
   local linhaFinal=$((LINHA_TAG+QTD_ATT));  # linha que tem a última declaração.
@@ -171,7 +176,7 @@ _linhaConstrutor(){
   #2) Se o construtor default não estiver no código (recupera a linha da última chave fechada)
   # [[ $LINHA_INSERCAO -le 0 ]] && LINHA_INSERCAO=$(sed -n '/}/{ $b; =; }' ${FILEPATH} | tail -1);
   [[ $LINHA_INSERCAO -le 0 ]] && { LINHA_INSERCAO=$(sed -n '/}/=' ${FILEPATH} | tail -1); ((--LINHA_INSERCAO)); }
-  [[ $LINHA_INSERCAO -le 0 ]] && { _showLogMessage "erro ao identificar a linha de inserção"; exit 6; }
+  [[ $LINHA_INSERCAO -le 0 ]] && { _ERRO "erro ao identificar a linha de inserção"; exit 6; }
 }
 
 
@@ -180,10 +185,10 @@ _gerarConstrutor(){
   _showLogMessage "GERANDO O MÉTODO CONSTRUTOR PARAMETRIZADO"
 
   readonly CONSTRUTOR="$(${binPerl} ${GERADOR_CONSTRUTOR} $OPTS_PERL $FILENAME ${ATRIBUTOS[@]})";
-  readonly PROTOTIPO="$(grep -m1 -Eo '\w+\(.+\)' <<< "$CONSTRUTOR")"; # FIXME
+  readonly PROTOTIPO="$(grep -m1 -Eo '\w+\(.+\)' <<< "$CONSTRUTOR" |  sed -r 's/[[:blank:]]*(\w+)[[:blank:]]+\w+([,)])/\\W*\1[^,]+\2/g')";
 
   #### [ VERIFICAR SE ALGUM CONSTRUTOR COM A MESMA QUANTIDADE DE ATRIBUTOS] ####
-  ((OverWrite)) || CONSTRUTOR_EXISTE=$(grep -c -w "${PROTOTIPO}" ${FILEPATH});
+  ((OverWrite)) || CONSTRUTOR_EXISTE=$(grep -c -E "${PROTOTIPO}" ${FILEPATH});
 }
 
 
@@ -211,6 +216,9 @@ _alterarArquivo(){
 
 
 _main(){
+
+  exec 3>&1
+  exec 4>&2
   (($Verbose)) || exec 2>/dev/null;
 
   _checkDependencies;
