@@ -89,12 +89,12 @@ _checkDependencies(){
   _showLogMessage "verificando dependecias";
   local ERROR=;
 
-  if not command -v perl >/dev/null 2>&1; then ERROR+=1; fi
-  if not command -v sed >/dev/null 2>&1; then ERROR+=2; fi
-  if not command -v cat >/dev/null 2>&1; then ERROR+=3; fi
-  if not command -v grep >/dev/null 2>&1; then ERROR+=4; fi
-  if not command -v tail >/dev/null 2>&1; then ERROR+=5; fi
-  if not command -v mktemp >/dev/null 2>&1; then ERROR+=6; fi
+  if ! command -v perl >/dev/null 2>&1; then ERROR+=1; fi
+  if ! command -v sed >/dev/null 2>&1; then ERROR+=2; fi
+  if ! command -v cat >/dev/null 2>&1; then ERROR+=3; fi
+  if ! command -v grep >/dev/null 2>&1; then ERROR+=4; fi
+  if ! command -v tail >/dev/null 2>&1; then ERROR+=5; fi
+  if ! command -v mktemp >/dev/null 2>&1; then ERROR+=6; fi
 
   [ -r "$REMOVER_COMENTARIOS" ] || ERROR+=7
   [ -r "$GERADOR_CONSTRUTOR" ] || ERROR+=8
