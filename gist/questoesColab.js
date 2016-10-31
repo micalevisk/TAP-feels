@@ -424,7 +424,7 @@ document.body.appendChild(dia);
 
 createButton("opener", "Questões", barraGrande);
 
-$('#opener').button().click(function() {
+$('#opener').click(function() {
 	$( "#dialog-message" ).dialog({
 		width: 500,
 		maxWidth: 500,
