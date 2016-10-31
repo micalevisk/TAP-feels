@@ -1,48 +1,30 @@
 /**
 *	Funcoes para obtencao de informacoes sobre o (seu) banco de questoes do colabweb (T.A.P.).
 *	@author Micael Levi L. C.
-*	@update 10-29-2016, 21:01 (GTM-0400)
+*	@update 10-31-2016, 15:45 (GTM-0400)
 *	@use Acessar as ferramentas de desenvolvedor (F12), ir para a aba Console e inserir o codigo abaixo.
 *	
 *
-*	status()          		=> retorna a quantidade de questoes resolvidas, erradas e indefindas.
-* status.show()         => (cria e) insere retorno da funcao 'status' na barra de informacoes.
-*	corretas()			  	  => retorna o titulo das questoes corrigidas.
-*	erradas()				      => retorna o titulo das questoes erradas.
-*	pendentes()				    => retorna o titulo das questoes pendentes (nao enviadas ou erradas).
-* tituloQuestoes()	    => retorna o titulo de todas as questões (com o nome do arquivo/classe se o arguemento for 1 ou true).
-* tituloQuestoes.save() => salva em um arquivo (e nao mostra no console) de nome 'tituloQuestoes-hhmm.txt'.
-* arquivosDasQuestoes()	=> retorna os nomes dos arquivos de cada questao.
-* nota()                => retorna a sua nota atual.
-* toggleBar()           => altera a transparencia da barra de informacoes (menos/mais visivel, com transparencia 0.5).
-* toggleBar.opacity()   => altera a transparencia padrao da barra de informacoes.
-* maximizarStatus()     => maximiza as questoes com o status passado.
-* minimizarStatus()     => minimiza as questoes com o status passado.
+*	status()              => retorna a quantidade de questoes resolvidas, erradas e indefindas.
+* 	status.show()         => (cria e) insere retorno da funcao 'status' na barra de informacoes.
+*	corretas()	      => retorna o titulo das questoes corrigidas.
+*	erradas()	      => retorna o titulo das questoes erradas.
+*	pendentes()	      => retorna o titulo das questoes pendentes (nao enviadas ou erradas).
+* 	tituloQuestoes()      => retorna o titulo de todas as questões (com o nome do arquivo/classe se o arguemento for 1 ou true).
+* 	tituloQuestoes.save() => salva em um arquivo (e nao mostra no console) de nome 'tituloQuestoes-hhmm.txt'.
+* 	arquivosDasQuestoes() => retorna os nomes dos arquivos de cada questao.
+* 	nota()                => retorna a sua nota atual.
+* 	toggleBar()           => altera a transparencia da barra de informacoes (menos/mais visivel, com transparencia 0.5).
+* 	toggleBar.opacity()   => altera a transparencia padrao da barra de informacoes.
+* 	maximizarStatus()     => maximiza as questoes com o status passado.
+* 	minimizarStatus()     => minimiza as questoes com o status passado.
 *
-* atividade             => variavel que contem o titulo da atividade.
-* qtd                   => variavel que contem a quantidade de questoes.
+* 	atividade             => variavel que contem o titulo da atividade.
+* 	qtd                   => variavel que contem a quantidade de questoes.
 **/
 
-// https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Guide/Regular_Expressions
-// http://www.w3schools.com/jsref/jsref_obj_regexp.asp
-// http://stackoverflow.com/questions/16792502/change-label-to-textbox-on-edit-hyperlink-click
-// http://stackoverflow.com/questions/7635077/jquery-replace-input-button-onclick-event
-// http://stackoverflow.com/questions/3893507/jquery-css-font-size
-// http://stackoverflow.com/questions/203198/event-binding-on-dynamically-created-elements
-
-// TODO: 
-// verificar se o status está atualizando. []
-// http://stackoverflow.com/questions/22897763/updating-variable-in-html-with-jquery
-// http://stackoverflow.com/questions/28819815/updating-a-variable-when-input-changes-in-jquery
-
-// TODO: 
-// adiconar botões na barra (table row) para ativar as funções criadas. []
-// http://www.w3schools.com/jsref/met_document_createelement.asp
-// http://stackoverflow.com/questions/7707074/creating-dynamic-button-with-click-event-in-javascript
-// http://stackoverflow.com/questions/8650975/javascript-to-create-a-button-with-onclick
-// https://codepen.io/davidcochran/pen/WbWXoa
-// http://www.w3schools.com/jsref/met_table_insertrow.asp
-
+// FIXME: 
+// verificar se o status está atualizando. linha 340.
 
 
 
@@ -77,7 +59,6 @@ function status(retornarFormatado){
 	indefinidas = indefinidas + " indefinida(s).";
 
 	results = resolvidas + erradas + indefinidas;
-	// console.log(results);
 
 	return results;
 }
@@ -87,7 +68,7 @@ function status(retornarFormatado){
 		// retorna true se acabou de criar.
 		if( createBar('info-status', 'info-grade-line', 'info-more') ){
 // 			document.getElementById('info-status').setAttribute("style", "text-align: center");
-// 	    document.getElementById('info-status').setAttribute("colspan",5);
+// 	    		document.getElementById('info-status').setAttribute("colspan",5);
 			$('#info-status').attr("colspan",5);
 			$('#info-status').attr("style", "text-align: center");
 			$('#info-status').css('font-size','12pt');
@@ -115,7 +96,6 @@ function corretas(){
 		}		
 	}
 	results = results.slice(0, -1).replace(regexRemoveHtml,"");
-	// console.log(results);
 	
 	return results;
 }
@@ -136,7 +116,6 @@ function erradas(){
 		}		
 	}
 	results = results.slice(0, -1).replace(regexRemoveHtml,"");
-	// console.log(results);
 	
 	return results.slice(1, -1);
 }
@@ -155,7 +134,6 @@ function pendentes(){
 		}		
 	}
 	results = results.slice(0, -1).replace(regexRemoveHtml,"");
-	// console.log(results);
 	
 	return results;
 }
@@ -184,7 +162,6 @@ function tituloQuestoes(mostrarNumero, mostrarArquivo){
 	}
 	
 	results = results.slice(0, -1).replace(regexRemoveHtml,"");
-	// console.log(results);
 	
 	return results;
 }
@@ -199,7 +176,7 @@ function tituloQuestoes(mostrarNumero, mostrarArquivo){
     
 		var date = new Date();
 		var sufix = "-" + date.getHours() + date.getMinutes() + ".txt"
-		var	filename = atividade.replace(/oratório/, "").replace(/ /g,"") + sufix;
+		var filename = atividade.replace(/oratório/, "").replace(/ /g,"") + sufix;
 
 		if(typeof data === "object"){
 			data = JSON.stringify(data, undefined, 4)
@@ -211,7 +188,7 @@ function tituloQuestoes(mostrarNumero, mostrarArquivo){
 
 		a.download = filename
 		a.href = window.URL.createObjectURL(blob)
-		a.dataset.downloadurl =  ['text/json', a.download, a.href].join(':')
+		a.dataset.downloadurl = ['text/json', a.download, a.href].join(':')
 
 		e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
 		a.dispatchEvent(e)
@@ -224,16 +201,10 @@ function arquivosDasQuestoes(){
 	var results="";
 	for(var i=0; i < qtd; ++i)
 		results += document.getElementsByClassName("file")[i].getAttribute("file") + "\n";
-	// console.log(results);
 	
 	return results;
 }
 
-
-
-function nota(){
-	return document.getElementById("grade").innerHTML;
-}
 
 
 function toggleBar(){
@@ -292,9 +263,6 @@ function createBar(dataid, classe, rowid){
 	var newRow   = tableRef.insertRow(tableRef.rows.length);
 	newRow.id = rowid;
 	appendBar(dataid, classe, rowid);
-	// 		var newCell  = newRow.insertCell(0);
-	// 		newCell.id = dataid;
-	// 		newCell.className = classe;
 	
 	return true;
 }
@@ -309,17 +277,24 @@ function appendBar(idx, classx, idy){
 
 
 function createButton(id, title, element, func){
-	var button = document.createElement("button");
+	if(document.getElementById(id) != null) return;
+	var button = document.createElement("BUTTON");
 	button.style.cursor = 'pointer';
 	button.id = id;
-	button.innerHTML = title;
+  button.innerHTML = title;
 	button.onclick = func;
 	element.appendChild(button);
 }
 
 
 // estado = {"right", "wrong", "indefined"}
-function maximizarStatus(estado){
+function maximizarStatus(estado, mostrar){
+	
+	if(mostrar){
+		$('.question[status='+estado+']').show();
+		return;
+	}
+	
 	$('div[status='+estado+']').each(function() {
  
 		$(this).find(".maximize").each(function() {
@@ -329,12 +304,18 @@ function maximizarStatus(estado){
 			$(parent).prepend("<div class='minimize'><img src='res/minimize.png'/></div>").animate( { height: labHeight }, 200, function() {
 				$(this).css("height", "auto");
 			});
-     });
+     		});
 		
 	});
 }
 
-function minimizarStatus(estado){
+function minimizarStatus(estado, esconder){
+	
+	if(esconder){
+		$('.question[status="'+estado+'"]').hide();
+		return;
+	}
+	
 	$('div[status='+estado+']').each(function() {
 
 		$(this).find(".minimize").each(function(){
@@ -351,10 +332,12 @@ function minimizarStatus(estado){
 
 
 
+
 $(document).ready(function() {
 	
+	
 	// ================================================================ //
-	document.getElementById('info-info-div').style.cursor = 'pointer';
+  	document.getElementById('info-info-div').style.cursor = 'pointer';
 
 	$('.info-grade-line').click( function(){
 		var barraExtra = $('#info-status');
@@ -377,23 +360,119 @@ $(document).ready(function() {
 	// createBar('info-toggle', 'info-grade-line', 'info-plus'); // id,class
 	// var barraPlus = document.getElementById('info-toggle');
 	// createButton('btnToggle', "toggle", barraPlus, toggleBar); // id,title,element,funcOnClick
-	createButton('btnToggleCorretas', "esconder corretas", barraGrande); // id,title,element,funcOnClick
-	$('#btnToggleCorretas').attr('onclick', 'minimizarStatus("right")');
+	createButton('btnToggleCorretas', "esconder corretas", barraGrande, ''); // id,title,element,funcOnClick
+	$('#btnToggleCorretas').attr('onclick', 'minimizarStatus("right",false)');
 	
-	$('#btnToggleCorretas').click( function(){
-		var lblAtual = $(this).text();
-		
-		if( lblAtual.search("esconder") != -1 ){
-			lblAtual = "mostrar";
-			$('#btnToggleCorretas').attr('onclick', 'maximizarStatus("right")');
-		} 
-		else{
-			lblAtual = "esconder";
-			$('#btnToggleCorretas').attr('onclick', 'minimizarStatus("right")');
-		}
+	$('#btnToggleCorretas').click( 
+		function(){
+			// lblAtual  := button innerHTML name
+			// max_min   := 'max' means maximizarStatus(), 'min' means minimizarStatus()
+			
+			lblAtual = $(this).text();
+			
+			if( lblAtual.search("esconder") != -1 ){
+				lblAtual = "mostrar";
+				max_min = "maximizar";
+			} 
+			else{
+				lblAtual = "esconder";
+				max_min = "minimizar";
+			}
+				
+			funcNova = $('#btnToggleCorretas').attr("onclick").replace(/maximizar|minimizar/i, max_min);
+			$('#btnToggleCorretas').attr("onclick", funcNova);
 
-		$(this).html( $(this).text().replace(/\w+/, lblAtual) );	
+			$(this).html( $(this).text().replace(/\w+/, lblAtual) );	
+	 }
+	);
+	
+	
+	////////////////////////////// CHECKBOX COM ID 'cbCorretas' //////////////////////////////
+	var checador = null;
+	if( (checador = document.getElementById('cbCorretas') ) == null)
+	 checador = document.createElement("INPUT");
+	checador.type = "checkbox"; // checador.setAttribute("type", "checkbox"); 
+	checador.id = "cbCorretas";
+	checador.style.cursor = "pointer";
+	barraGrande.appendChild(checador);
+	$('#cbCorretas').change(function(){
+		estaMarcado = $(this).is(":checked");
+		funcaoNova = $('#btnToggleCorretas').attr("onclick").replace(/true|false/i, estaMarcado);
+		$('#btnToggleCorretas').attr('onclick', funcaoNova);
 	});
+
+
 	
 
 });
+
+
+///////// DIALOG
+var barraGrande = document.getElementsByClassName('banner-table-title')[0];
+
+var para = document.createElement("PRE");
+// var node = tituloQuestoes(1);
+var node = $('.question-title').text().replace(/questão/ig, "\n$&")
+para.innerHTML = node;
+document.body.appendChild(para);
+
+var dia = document.createElement("DIV");
+dia.title = atividade;
+dia.id = "dialog-message";
+dia.appendChild(para);
+document.body.appendChild(dia);
+
+createButton("opener", "Questões", barraGrande);
+
+$('#opener').button().click(function() {
+	$( "#dialog-message" ).dialog({
+		width: 500,
+		maxWidth: 500,
+		maxHeight: 400,
+		modal: true,
+		buttons: {
+			Ok: function() {
+				$( this ).dialog( "close" );
+			},
+			Exportar: function() {
+				console.save(node, atividade+'.txt');
+			}
+		}
+	});
+});
+
+
+
+
+
+
+
+
+
+
+(function(console){
+
+console.save = function(data, filename){
+
+    if(!data) {
+        console.error('Console.save: No data')
+        return;
+    }
+
+    if(!filename) filename = 'console.saved'
+
+    if(typeof data === "object"){
+        data = JSON.stringify(data, undefined, 4)
+    }
+
+    var blob = new Blob([data], {type: 'text/json'}),
+        e    = document.createEvent('MouseEvents'),
+        a    = document.createElement('a')
+
+    a.download = filename
+    a.href = window.URL.createObjectURL(blob)
+    a.dataset.downloadurl =  ['text/json', a.download, a.href].join(':')
+    e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
+    a.dispatchEvent(e)
+ }
+})(console)
