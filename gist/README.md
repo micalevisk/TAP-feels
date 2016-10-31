@@ -6,7 +6,7 @@
 ``` javascript
 var script = document.createElement('script');
 script.type = 'text/javascript';
-script.src = 'https://gist.githubusercontent.com/micalevisk/88dbc2dc998c8a588e73dad579331f6f/raw/56a9f7ec20e0e8ab5563189ba82a467343f3fa51/questoesColab.js';
+script.src = 'https://rawgit.com/micalevisk/88dbc2dc998c8a588e73dad579331f6f/raw/9258d8c99c8445b6cc6aa4f4adcfd0447f100567/questoesColab.js';
 document.head.appendChild(script);
 ```
 
@@ -14,7 +14,7 @@ document.head.appendChild(script);
 ## (fixed) for Google Chrome or Internet Edge: [RawGit](http://rawgit.com/) ![](http://icons.iconarchive.com/icons/appicns/simplified-app/24/appicns-Chrome-icon.png) ![](http://icons.iconarchive.com/icons/dakirby309/windows-8-metro/24/Web-Browsers-Internet-Explorer-10-Metro-icon.png)
 
 ``` javascript
-var code = '<script type="text/javascript" src="https://rawgit.com/micalevisk/88dbc2dc998c8a588e73dad579331f6f/raw/56a9f7ec20e0e8ab5563189ba82a467343f3fa51/questoesColab.js"></script>';
+var code = '<script type="text/javascript" src="https://rawgit.com/micalevisk/88dbc2dc998c8a588e73dad579331f6f/raw/9258d8c99c8445b6cc6aa4f4adcfd0447f100567/questoesColab.js"></script>'; 
 $('head').append(code);
 ```
 PS: erro no botão de esconder/mostrar corretas no Chrome.
