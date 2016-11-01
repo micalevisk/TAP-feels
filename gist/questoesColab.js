@@ -26,7 +26,10 @@
 // FIXME: 
 // verificar se o status está atualizando. linha 340.
 
-
+// TODO:
+// função para obter toda a questão (para exportar futuramente, como pdf).
+// $('#3').parents[0].textContent() retorna a questão 2 em forma de texto. OU $('#3').parent().text()
+// $("div[id='0']") é a questão 1; .parent().text() é o conteúdo.
 
 
 var DATA = document.getElementsByTagName("DIV")[6].getElementsByTagName("DIV")[1].getElementsByTagName("DIV")[0]; // o banco de questões.
@@ -390,7 +393,7 @@ $(document).ready(function() {
 	////////////////////////////// CHECKBOX COM ID 'cbCorretas' //////////////////////////////
 	var checador = null;
 	if( (checador = document.getElementById('cbCorretas') ) == null)
-	 checador = document.createElement("INPUT");
+	checador = document.createElement("INPUT");
 	checador.type = "checkbox"; // checador.setAttribute("type", "checkbox"); 
 	checador.id = "cbCorretas";
 	checador.style.cursor = "pointer";
@@ -403,55 +406,86 @@ $(document).ready(function() {
 
 
 	
+	$('.question-title').each(function(index){  $(this).attr("id", index); });
+	////////////////////////////// DIALOG COM OS TÍTULO DAS QUESTOES //////////////////////////////
+	var barraGrande = document.getElementsByClassName('banner-table-title')[0];
 
-});
+	var para = document.createElement("DIV");
+	var questoes="";
+	$('.question-title').each(function(index){ questoes += "<span class='titulo-questoes' id='"+index+"'>" +$(this).text()+ "<br></span>" ; });
+	para.innerHTML = questoes;
 
+	var dia = document.createElement("DIV");
+	dia.title = atividade;
+	dia.id = "dialog-message";
+	dia.appendChild(para);
+	document.head.appendChild(dia);
 
-///////// DIALOG
-var barraGrande = document.getElementsByClassName('banner-table-title')[0];
-
-var para = document.createElement("PRE");
-// var node = tituloQuestoes(1);
-var node = $('.question-title').text().replace(/questão/ig, "\n$&")
-para.innerHTML = node;
-document.body.appendChild(para);
-
-var dia = document.createElement("DIV");
-dia.title = atividade;
-dia.id = "dialog-message";
-dia.appendChild(para);
-document.body.appendChild(dia);
-
-createButton("opener", "Questões", barraGrande);
-
-$('#opener').click(function() {
-	$( "#dialog-message" ).dialog({
-		width: 500,
-		maxWidth: 500,
-		maxHeight: 400,
-		modal: true,
-		buttons: {
-			Ok: function() {
-				$( this ).dialog( "close" );
-			},
-			Exportar: function() {
-				console.save(node, atividade+'.txt');
+	createButton("opener", "questões", barraGrande);
+	$('#opener').click(function() {
+		$("#dialog-message").dialog({
+			width: 500,
+			maxWidth: 500,
+			maxHeight: 400,
+			modal: true,
+			buttons: {
+				Ok: function() {
+					$(this).dialog( "close" );
+				},
+				Baixar: function() {
+					questoes = $('.question-title').text().replace(/questão/ig, "\n$&").substring(1);
+					if( sistemaOperacional().indexOf("Win") != -1 ) questoes = questoes.replace(/$/mg, '\r');
+					console.save(questoes, atividade+'.txt');
+				}
 			}
-		}
+		});
 	});
+
+	
+	
+	$('.titulo-questoes').each(function(){ 
+		cor = "lightgray";
+		qid = $(this).attr("id");
+		
+		statusDaQuestao = $('div[id="'+ qid +'"]').parent().attr("status").toLocaleLowerCase();
+		if(statusDaQuestao == "right") cor = "green";
+		else if(statusDaQuestao == "wrong") cor = "red";
+		
+		$(this).css("color", cor);
+	});
+	$('.titulo-questoes').css('cursor', 'pointer');
+	
+	// Ao clicar na questão X de id X-1, vá para o objeto $('.question')[X-1]; $("span[id='0']") é a questão 1; .text() é o seu título.
+	$('.titulo-questoes').click(function(){
+		qid = $(this).attr("id");
+		$("#dialog-message").dialog("close");
+		goTo(qid);
+	});
+	
+  
+
+	
+	
 });
 
 
+/* //// [OLD BUT GOLD] ////
+	$('.titulo-questoes').mouseover(function(){ 
+		cor = "red";
+		qid = $(this).attr("id");
+		statusDaQuestao = $('#'+qid).parent().attr("status");
+		
+		if(statusDaQuestao.toLocaleLowerCase() == "right") cor = "green";
+		$(this).css("color", cor);
+	});
+	$('.titulo-questoes').mouseout(function(){ $(this).css("color", "black"); });
+*/
 
 
 
 
-
-
-
-
+// (c) http://stackoverflow.com/questions/11849562/how-to-save-the-output-of-a-console-logobject-to-a-file
 (function(console){
-
 console.save = function(data, filename){
 
     if(!data) {
@@ -476,3 +510,32 @@ console.save = function(data, filename){
     a.dispatchEvent(e)
  }
 })(console)
+
+
+// (c) http://www.javascripter.net/faq/operatin.htm
+// (c) http://stackoverflow.com/questions/7044944/jquery-javascript-to-detect-os-without-a-plugin
+function sistemaOperacional(){
+	/*
+	var OSName="";
+	if (navigator.appVersion.indexOf("Win")!=-1) OSName="Windows";
+	if (navigator.appVersion.indexOf("Mac")!=-1) OSName="MacOS";
+	if (navigator.appVersion.indexOf("X11")!=-1) OSName="UNIX";
+	if (navigator.appVersion.indexOf("Linux")!=-1) OSName="Linux";
+	return OSName;
+	*/
+
+	return navigator.platform; // {Win32, Linux x86_64, Mac}
+}
+
+
+// (c) http://stackoverflow.com/questions/13735912/anchor-jumping-by-using-javascript
+// (c) http://stackoverflow.com/questions/6677035/jquery-scroll-to-element
+function goTo(h){
+	/*
+	var top = document.getElementById(h).offsetTop; // = $('#'+h).offset().top;	
+	window.scrollTo(0, top);
+	*/
+	$('html, body').animate({
+    scrollTop: $('#'+h).offset().top
+   }, 500);
+}
