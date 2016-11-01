@@ -1,7 +1,7 @@
 /**
 *	Funcoes para obtencao de informacoes sobre o (seu) banco de questoes do colabweb (T.A.P.).
 *	@author Micael Levi L. C.
-*	@update 10-31-2016, 21:37 (GTM-0400)
+*	@update 11-01-2016, 12:44 (GTM-0400)
 *	@use Acessar as ferramentas de desenvolvedor (F12), ir para a aba Console e inserir o codigo abaixo.
 *	
 *
@@ -332,14 +332,9 @@ function minimizarStatus(estado, esconder){
 }
 
 
-
-
-
-
-$(document).ready(function() {
-	
-	
-	// ================================================================ //
+// inicializar alterações da grade.
+function initGrade(){
+		// ================================================================ //
   	document.getElementById('info-info-div').style.cursor = 'pointer';
 
 	$('.info-grade-line').click( function(){
@@ -354,8 +349,10 @@ $(document).ready(function() {
 		alert("ESTADO DO ARQUIVO alterado");
 	});
 	// ================================================================ //
+}
 
-	
+// inicializar criações e inserções dos botões
+function initBotoes(){
 	/************************* [ TESTE: BOTÕES NA BARRA ] *************************/
 	status.show(1);
 	var barraGrande = document.getElementsByClassName('banner-table-title')[0];
@@ -388,8 +385,11 @@ $(document).ready(function() {
 			$(this).html( $(this).text().replace(/\w+/, lblAtual) );	
 	 }
 	);
-	
-	
+}
+
+// inicializar criação e inserção da checkbox
+function initCheckbox(){
+	var barraGrande = document.getElementsByClassName('banner-table-title')[0];
 	////////////////////////////// CHECKBOX COM ID 'cbCorretas' //////////////////////////////
 	var checador = null;
 	if( (checador = document.getElementById('cbCorretas') ) == null)
@@ -403,10 +403,10 @@ $(document).ready(function() {
 		funcaoNova = $('#btnToggleCorretas').attr("onclick").replace(/true|false/i, estaMarcado);
 		$('#btnToggleCorretas').attr('onclick', funcaoNova);
 	});
+}
 
-
-	
-	$('.question-title').each(function(index){  $(this).attr("id", index); });
+// inicializar e criar caixa de mensagem com as questões
+function initDialog(){
 	////////////////////////////// DIALOG COM OS TÍTULO DAS QUESTOES //////////////////////////////
 	var barraGrande = document.getElementsByClassName('banner-table-title')[0];
 
@@ -420,6 +420,9 @@ $(document).ready(function() {
 	dia.id = "dialog-message";
 	dia.appendChild(para);
 	document.head.appendChild(dia);
+	
+	questoes = $('.question-title').text().replace(/quest/ig, "\n$&").substring(1);
+	if( sistemaOperacional().indexOf("Win") != -1 ) questoes = questoes.replace(/$/mg, '\r');
 
 	createButton("opener", "questões", barraGrande);
 	$('#opener').click(function() {
@@ -433,15 +436,12 @@ $(document).ready(function() {
 					$(this).dialog( "close" );
 				},
 				Baixar: function() {
-					questoes = $('.question-title').text().replace(/questão/ig, "\n$&").substring(1);
-					if( sistemaOperacional().indexOf("Win") != -1 ) questoes = questoes.replace(/$/mg, '\r');
 					console.save(questoes, atividade+'.txt');
 				}
 			}
 		});
 	});
 
-	
 	
 	$('.titulo-questoes').each(function(){ 
 		cor = "lightgray";
@@ -462,9 +462,22 @@ $(document).ready(function() {
 		goTo(qid);
 	});
 	
-  
+}
 
+
+
+$(document).ready(function() {
 	
+	if( document.URL.search("webdev.icomp") != -1 ){
+	
+		// definindo ids para as questões
+		$('.question-title').each(function(index){  $(this).attr("id", index); });
+		initGrade();
+		initBotoes();
+		initCheckbox();
+		initDialog();
+
+	}
 	
 });
 
@@ -473,9 +486,9 @@ $(document).ready(function() {
 	$('.titulo-questoes').mouseover(function(){ 
 		cor = "red";
 		qid = $(this).attr("id");
-		statusDaQuestao = $('#'+qid).parent().attr("status");
+		statusDaQuestao = $('#'+qid).parent().attr("status").toLocaleLowerCase();
 		
-		if(statusDaQuestao.toLocaleLowerCase() == "right") cor = "green";
+		if(statusDaQuestao == "right") cor = "green";
 		$(this).css("color", cor);
 	});
 	$('.titulo-questoes').mouseout(function(){ $(this).css("color", "black"); });
