@@ -1,9 +1,9 @@
 /**
 *	Funcoes para obtencao de informacoes sobre o (seu) banco de questoes do colabweb (T.A.P.).
 *	@author Micael Levi L. C.
-*	@update 11-01-2016, 12:44 (GTM-0400)
+*	@update 11-01-2016, 19:22 (GTM-0400)
 *	@use Acessar as ferramentas de desenvolvedor (F12), ir para a aba Console e inserir o codigo abaixo.
-*	
+*
 *
 *	status()              => retorna a quantidade de questoes resolvidas, erradas e indefindas.
 * 	status.show()         => (cria e) insere retorno da funcao 'status' na barra de informacoes.
@@ -23,19 +23,15 @@
 * 	qtd                   => variavel que contem a quantidade de questoes.
 **/
 
-// FIXME: 
+// FIXME:
 // verificar se o status está atualizando. linha 340.
 
 // TODO:
-// função para obter toda a questão (para exportar futuramente, como pdf).
+// Função para obter toda a questão (para exportar futuramente, como pdf).
 // $('#3').parents[0].textContent() retorna a questão 2 em forma de texto. OU $('#3').parent().text()
 // $("div[id='0']") é a questão 1; .parent().text() é o conteúdo.
-
-
-var DATA = document.getElementsByTagName("DIV")[6].getElementsByTagName("DIV")[1].getElementsByTagName("DIV")[0]; // o banco de questões.
-var qtd = DATA.getElementsByClassName("question").length; // quantidade de questões.
-var regexRemoveHtml = new RegExp("<[^>]*>","g"); //// ==  /<[^>]*>/g
-var atividade = document.getElementsByClassName('preface-title')[0].innerHTML;
+// Auto minimizar a questão quando status mudar para right
+// $('.file-status').change(function(){ console.log( $(this).attr("status") ) })
 
 
 
@@ -44,7 +40,8 @@ function status(retornarFormatado){
 	var resolvidas=0;
 	var erradas=0;
 	var indefinidas=0;
-	
+
+	/*
 	for(var i=0; i < qtd; i++){
 		var questao = DATA.getElementsByClassName("question")[i];
 		var status  = questao.getAttribute("status");
@@ -52,11 +49,15 @@ function status(retornarFormatado){
 		else if(status.localeCompare("wrong") == 0) erradas++;
 		else indefinidas++;
 	}
-	
+	*/
+	resolvidas = $('.question[status="right"]').length;
+	erradas = $('.question[status="wrong"]').length
+	indefinidas = qtd - (resolvidas+erradas);
+
 	var results = resolvidas + ':' + erradas + ':' + indefinidas; // resolvidas:erradas:indefinidas
 	if(retornarFormatado) return results;
 	results = results.replace(/(\d+):(\d+):(\d+)/, "$1 corretas(s)\n$2 errada(s)\n$3 não enviada(s)");
-	
+
 	resolvidas = resolvidas + " resolvida(s); ";
 	erradas = erradas + " errada(s); ";
 	indefinidas = indefinidas + " indefinida(s).";
@@ -67,24 +68,19 @@ function status(retornarFormatado){
 }
 (function(status){
 	status.show = function(naoMostrar){
-		
-		// retorna true se acabou de criar.
+
 		if( createBar('info-status', 'info-grade-line', 'info-more') ){
-// 			document.getElementById('info-status').setAttribute("style", "text-align: center");
-// 	    		document.getElementById('info-status').setAttribute("colspan",5);
-			$('#info-status').attr("colspan",5);
+			$('#info-status').attr("colspan",5); // document.getElementById('info-status').setAttribute("colspan",5);
 			$('#info-status').attr("style", "text-align: center");
 			$('#info-status').css('font-size','12pt');
 			$('#info-status').html('<span><nobr id="info-info-status"></nobr></span>');
-		} 
-		
+		}
+
 		if(naoMostrar) $('#info-status').hide();
-// 		if(naoMostrar) elem.style.display = 'none'; // oposto de 'inline'
-		var info = status(1).replace(/(\d+):(\d+):(\d+)/, "$1 resolvidas, $2 erradas, $3 não enviadas.");
-		$('#info-info-status').html(info); // .replaceAll(';','\n').replace('.','')
+		var info = status(1).replace(/(\d+):(\d+):(\d+)/, "$1 resolvida(s), $2 errada(s), $3 não enviada(s)");
+		$('#info-info-status').html(info);
 	}
 })(status)
-
 
 
 
@@ -96,10 +92,10 @@ function corretas(){
 		if(status.localeCompare("right") == 0){
 			var titulo = questao.getElementsByClassName("question-title")[0];
 			results += titulo.innerHTML + "\n";
-		}		
+		}
 	}
 	results = results.slice(0, -1).replace(regexRemoveHtml,"");
-	
+
 	return results;
 }
 
@@ -116,10 +112,10 @@ function erradas(){
 			var erro = "ERRO:" + '[' + questao.getElementsByClassName("file-status")[0].innerHTML + ']';
 
 			results += addAspas(titulo) + ' ' + erro + ' ' + pontos + "\n";
-		}		
+		}
 	}
 	results = results.slice(0, -1).replace(regexRemoveHtml,"");
-	
+
 	return results.slice(1, -1);
 }
 
@@ -134,10 +130,10 @@ function pendentes(){
 			var titulo = questao.getElementsByClassName("question-title")[0].innerHTML;
 			var pontos = '(' + questao.getElementsByClassName("question-grade")[0].innerHTML + ')';
 			results += addAspas(titulo) + ' ' + pontos + "\n";
-		}		
+		}
 	}
 	results = results.slice(0, -1).replace(regexRemoveHtml,"");
-	
+
 	return results;
 }
 
@@ -145,15 +141,15 @@ function pendentes(){
 
 function tituloQuestoes(mostrarNumero, mostrarArquivo){
 	var results="";
-	
+
 	for(var i=0; i < qtd; i++){
 		var questao = DATA.getElementsByClassName("question")[i];
 		var status  = questao.getAttribute("status");
 		var titulo = questao.getElementsByClassName("question-title")[0].innerHTML;
 		// var numeroQuestao = titulo.replace(/^[^\d]*(\d+).*/,"$1"); /// ou 'i'
 		var nomeArquivo = questao.getElementsByClassName("file")[0].getAttribute("file"); // .replace(/\.java/,"")
-	
-		if(mostrarNumero) 
+
+		if(mostrarNumero)
 			titulo = titulo.replace(/Quest[^\d]*\s*(\d+)\s*[^\w]\s*(.*)/i, replacer);
 		else
 			titulo = titulo.replace(/Quest[^\d]*\s*\d+\s*[^\w]\s*(.*)/i, "$1");
@@ -163,9 +159,9 @@ function tituloQuestoes(mostrarNumero, mostrarArquivo){
 
 		results += titulo + "\n";
 	}
-	
+
 	results = results.slice(0, -1).replace(regexRemoveHtml,"");
-	
+
 	return results;
 }
 (function(tituloQuestoes){
@@ -176,7 +172,7 @@ function tituloQuestoes(mostrarNumero, mostrarArquivo){
 			console.error('tituloQuestoes.save: Nenhum dado foi retornado.')
 			return;
 		}
-    
+
 		var date = new Date();
 		var sufix = "-" + date.getHours() + date.getMinutes() + ".txt"
 		var filename = atividade.replace(/oratório/, "").replace(/ /g,"") + sufix;
@@ -204,20 +200,20 @@ function arquivosDasQuestoes(){
 	var results="";
 	for(var i=0; i < qtd; ++i)
 		results += document.getElementsByClassName("file")[i].getAttribute("file") + "\n";
-	
+
 	return results;
 }
 
 
 
 function toggleBar(){
-// 	var tableRef = document.getElementById('info-info').getElementsByTagName('tbody')[0];
+
 	/*
 	var data = $('.table-noborder').not('#info');
 	if( data.is(":visible") ) data.hide();
 	else data.show();
 	*/
-	
+
 	if(document.getElementById('grade-skills') == null){
 		var styleBar = document.createElement('style');
 		styleBar.type = 'text/css';
@@ -232,7 +228,7 @@ function toggleBar(){
 	else data.addClass('info-grade-skills');
 	// if(data.css("opacity") != 1) data.removeClass('info-grade-skills');
 	// else data.addClass('info-grade-skills');
-	
+
 	return styleBar;
 }
 (function(toggleBar){
@@ -266,7 +262,7 @@ function createBar(dataid, classe, rowid){
 	var newRow   = tableRef.insertRow(tableRef.rows.length);
 	newRow.id = rowid;
 	appendBar(dataid, classe, rowid);
-	
+
 	return true;
 }
 
@@ -275,7 +271,7 @@ function appendBar(idx, classx, idy){
 	var row =  document.getElementById(idy);
 	var newCell = row.insertCell(row.cells.length);
 	newCell.id = idx;
-	newCell.className = classx;	
+	newCell.className = classx;
 }
 
 
@@ -284,7 +280,7 @@ function createButton(id, title, element, func){
 	var button = document.createElement("BUTTON");
 	button.style.cursor = 'pointer';
 	button.id = id;
-  button.innerHTML = title;
+  	button.innerHTML = title;
 	button.onclick = func;
 	element.appendChild(button);
 }
@@ -292,14 +288,14 @@ function createButton(id, title, element, func){
 
 // estado = {"right", "wrong", "indefined"}
 function maximizarStatus(estado, mostrar){
-	
+
 	if(mostrar){
 		$('.question[status='+estado+']').show();
 		return;
 	}
-	
+
 	$('div[status='+estado+']').each(function() {
- 
+
 		$(this).find(".maximize").each(function() {
 			parent = $(this).parent();
 			$(this).remove();
@@ -308,17 +304,17 @@ function maximizarStatus(estado, mostrar){
 				$(this).css("height", "auto");
 			});
      		});
-		
+
 	});
 }
 
 function minimizarStatus(estado, esconder){
-	
+
 	if(esconder){
 		$('.question[status="'+estado+'"]').hide();
 		return;
 	}
-	
+
 	$('div[status='+estado+']').each(function() {
 
 		$(this).find(".minimize").each(function(){
@@ -327,7 +323,7 @@ function minimizarStatus(estado, esconder){
 			 labHeight = $(parent).height();
 			 $(parent).data("labHeight", labHeight).prepend("<div class='maximize'><img src='res/maximize.png'/></div>").animate( { height:"30px" }, 200);
 		});
-		
+
 	});
 }
 
@@ -344,8 +340,8 @@ function initGrade(){
 		else barraExtra.show(100);
 	});
 
-	// TESTAR:
-	$('.file-status').change( function(){ 
+	// VERIFICAR:
+	$('.file-status').change( function(){
 		alert("ESTADO DO ARQUIVO alterado");
 	});
 	// ================================================================ //
@@ -362,28 +358,34 @@ function initBotoes(){
 	// createButton('btnToggle', "toggle", barraPlus, toggleBar); // id,title,element,funcOnClick
 	createButton('btnToggleCorretas', "esconder corretas", barraGrande, ''); // id,title,element,funcOnClick
 	$('#btnToggleCorretas').attr('onclick', 'minimizarStatus("right",false)');
-	
-	$('#btnToggleCorretas').click( 
+
+	$('#btnToggleCorretas').click(
 		function(){
 			// lblAtual  := button innerHTML name
 			// max_min   := 'max' means maximizarStatus(), 'min' means minimizarStatus()
-			
+
 			lblAtual = $(this).text();
-			
+
 			if( lblAtual.search("esconder") != -1 ){
 				lblAtual = "mostrar";
 				max_min = "maximizar";
-			} 
+			}
 			else{
 				lblAtual = "esconder";
 				max_min = "minimizar";
 			}
-				
-			funcNova = $('#btnToggleCorretas').attr("onclick").replace(/maximizar|minimizar/i, max_min);
-			$('#btnToggleCorretas').attr("onclick", funcNova);
 
-			$(this).html( $(this).text().replace(/\w+/, lblAtual) );	
-	 }
+			funcNova = $('#btnToggleCorretas').attr("onclick").replace(/maximizar|minimizar/i, max_min);
+			// $('#btnToggleCorretas').attr("onclick", funcNova);
+			$.ajax({
+			// (c) http://stackoverflow.com/questions/17987607/using-jquery-attr-or-prop-to-set-attribute-value-not-working
+				success: function (result) {
+					$('#btnToggleCorretas').attr("onclick", funcNova);
+		            }
+		        });
+
+			$(this).html( $(this).text().replace(/\w+/, lblAtual) );
+	 	}
 	);
 }
 
@@ -394,14 +396,19 @@ function initCheckbox(){
 	var checador = null;
 	if( (checador = document.getElementById('cbCorretas') ) == null)
 	checador = document.createElement("INPUT");
-	checador.type = "checkbox"; // checador.setAttribute("type", "checkbox"); 
+	checador.type = "checkbox"; // checador.setAttribute("type", "checkbox");
 	checador.id = "cbCorretas";
 	checador.style.cursor = "pointer";
 	barraGrande.appendChild(checador);
 	$('#cbCorretas').change(function(){
 		estaMarcado = $(this).is(":checked");
-		funcaoNova = $('#btnToggleCorretas').attr("onclick").replace(/true|false/i, estaMarcado);
-		$('#btnToggleCorretas').attr('onclick', funcaoNova);
+		funcNova = $('#btnToggleCorretas').attr("onclick").replace(/true|false/i, estaMarcado);
+		// $('#btnToggleCorretas').attr('onclick', funcNova);
+		$.ajax({
+			success: function (result) {
+				$('#btnToggleCorretas').attr("onclick", funcNova);
+		    }
+		});
 	});
 }
 
@@ -420,7 +427,7 @@ function initDialog(){
 	dia.id = "dialog-message";
 	dia.appendChild(para);
 	document.head.appendChild(dia);
-	
+
 	questoes = $('.question-title').text().replace(/quest/ig, "\n$&").substring(1);
 	if( sistemaOperacional().indexOf("Win") != -1 ) questoes = questoes.replace(/$/mg, '\r');
 
@@ -442,52 +449,57 @@ function initDialog(){
 		});
 	});
 
-	
-	$('.titulo-questoes').each(function(){ 
+
+	$('.titulo-questoes').each(function(){
 		cor = "lightgray";
 		qid = $(this).attr("id");
-		
+
 		statusDaQuestao = $('div[id="'+ qid +'"]').parent().attr("status").toLocaleLowerCase();
 		if(statusDaQuestao == "right") cor = "green";
 		else if(statusDaQuestao == "wrong") cor = "red";
-		
+
 		$(this).css("color", cor);
 	});
 	$('.titulo-questoes').css('cursor', 'pointer');
-	
+
 	// Ao clicar na questão X de id X-1, vá para o objeto $('.question')[X-1]; $("span[id='0']") é a questão 1; .text() é o seu título.
 	$('.titulo-questoes').click(function(){
 		qid = $(this).attr("id");
 		$("#dialog-message").dialog("close");
 		goTo(qid);
 	});
-	
+
 }
 
 
+if( document.URL.search("webdev.icomp") != -1 ){
 
-$(document).ready(function() {
-	
-	if( document.URL.search("webdev.icomp") != -1 ){
-	
+	var DATA = document.getElementsByTagName("DIV")[6].getElementsByTagName("DIV")[1].getElementsByTagName("DIV")[0]; // o banco de questões.
+	var qtd = DATA.getElementsByClassName("question").length; // quantidade de questões.
+	var regexRemoveHtml = new RegExp("<[^>]*>","g"); //// ==  /<[^>]*>/g
+	var atividade = document.getElementsByClassName('preface-title')[0].innerHTML;
+
+
+	$(document).ready(function() {
 		// definindo ids para as questões
 		$('.question-title').each(function(index){  $(this).attr("id", index); });
 		initGrade();
 		initBotoes();
 		initCheckbox();
 		initDialog();
-
-	}
-	
-});
+	});
+}
+else{
+	alert("Não é o colabweb de T.A.P");
+}
 
 
 /* //// [OLD BUT GOLD] ////
-	$('.titulo-questoes').mouseover(function(){ 
+	$('.titulo-questoes').mouseover(function(){
 		cor = "red";
 		qid = $(this).attr("id");
 		statusDaQuestao = $('#'+qid).parent().attr("status").toLocaleLowerCase();
-		
+
 		if(statusDaQuestao == "right") cor = "green";
 		$(this).css("color", cor);
 	});
@@ -545,7 +557,7 @@ function sistemaOperacional(){
 // (c) http://stackoverflow.com/questions/6677035/jquery-scroll-to-element
 function goTo(h){
 	/*
-	var top = document.getElementById(h).offsetTop; // = $('#'+h).offset().top;	
+	var top = document.getElementById(h).offsetTop; // = $('#'+h).offset().top;
 	window.scrollTo(0, top);
 	*/
 	$('html, body').animate({
