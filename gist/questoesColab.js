@@ -1,7 +1,7 @@
 /**
 *	Funcoes para obtencao de informacoes sobre o (seu) banco de questoes do colabweb (T.A.P.).
 *	@author Micael Levi L. C.
-*	@update 10-31-2016, 15:45 (GTM-0400)
+*	@update 10-31-2016, 21:37 (GTM-0400)
 *	@use Acessar as ferramentas de desenvolvedor (F12), ir para a aba Console e inserir o codigo abaixo.
 *	
 *
