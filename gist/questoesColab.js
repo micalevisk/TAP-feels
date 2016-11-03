@@ -23,15 +23,21 @@
 * 	qtd                   => variavel que contem a quantidade de questoes.
 **/
 
+
 // FIXME:
+// ======
 // verificar se o status está atualizando. linha 340.
 
 // TODO:
+// =====
 // Função para obter toda a questão (para exportar futuramente, como pdf).
 // $('#3').parents[0].textContent() retorna a questão 2 em forma de texto. OU $('#3').parent().text()
 // $("div[id='0']") é a questão 1; .parent().text() é o conteúdo.
 // Auto minimizar a questão quando status mudar para right
 // $('.file-status').change(function(){ console.log( $(this).attr("status") ) })
+// Alterar o click do botão que vai para questão, por um href com o id da questão. (#questionQ)
+// http://stackoverflow.com/questions/179713/how-to-change-the-href-for-a-hyperlink-using-jquery
+// $('.question-title').each(function(index){ questoes += "<a href='#question4' class='titulo-questoes' id='"+index+"'>" +$(this).text()+ "<br></a>"; });
 
 
 
@@ -330,7 +336,6 @@ function minimizarStatus(estado, esconder){
 
 // inicializar alterações da grade.
 function initGrade(){
-		// ================================================================ //
   	document.getElementById('info-info-div').style.cursor = 'pointer';
 
 	$('.info-grade-line').click( function(){
@@ -344,12 +349,10 @@ function initGrade(){
 	$('.file-status').change( function(){
 		alert("ESTADO DO ARQUIVO alterado");
 	});
-	// ================================================================ //
 }
 
 // inicializar criações e inserções dos botões
 function initBotoes(){
-	/************************* [ TESTE: BOTÕES NA BARRA ] *************************/
 	status.show(1);
 	var barraGrande = document.getElementsByClassName('banner-table-title')[0];
 	createButton('btnToggleTransparencia', "toggle transparência", barraGrande, toggleBar); // id,title,element,funcOnClick
@@ -392,7 +395,6 @@ function initBotoes(){
 // inicializar criação e inserção da checkbox
 function initCheckbox(){
 	var barraGrande = document.getElementsByClassName('banner-table-title')[0];
-	////////////////////////////// CHECKBOX COM ID 'cbCorretas' //////////////////////////////
 	var checador = null;
 	if( (checador = document.getElementById('cbCorretas') ) == null)
 	checador = document.createElement("INPUT");
@@ -414,7 +416,6 @@ function initCheckbox(){
 
 // inicializar e criar caixa de mensagem com as questões
 function initDialog(){
-	////////////////////////////// DIALOG COM OS TÍTULO DAS QUESTOES //////////////////////////////
 	var barraGrande = document.getElementsByClassName('banner-table-title')[0];
 
 	var para = document.createElement("DIV");
@@ -449,12 +450,14 @@ function initDialog(){
 		});
 	});
 
-
+// 	$('.question-title[id="4"]')
+// $('.titulo-questoes[id="4"]')
 	$('.titulo-questoes').each(function(){
 		cor = "lightgray";
 		qid = $(this).attr("id");
 
-		statusDaQuestao = $('div[id="'+ qid +'"]').parent().attr("status").toLocaleLowerCase();
+// 		statusDaQuestao = $('div[id="'+ qid +'"]').parent().attr("status").toLocaleLowerCase();
+		statusDaQuestao = $('.question-title[id="'+ qid +'"]').parent().attr("status").toLocaleLowerCase();
 		if(statusDaQuestao == "right") cor = "green";
 		else if(statusDaQuestao == "wrong") cor = "red";
 
@@ -483,6 +486,8 @@ if( document.URL.search("webdev.icomp") != -1 ){
 	$(document).ready(function() {
 		// definindo ids para as questões
 		$('.question-title').each(function(index){  $(this).attr("id", index); });
+    $('.question').each(function(index){  $(this).attr("id", 'question'+index); });
+		
 		initGrade();
 		initBotoes();
 		initCheckbox();
