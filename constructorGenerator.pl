@@ -96,19 +96,21 @@ foreach (@PARAMETROS){
 ###################################################
 ############ IMPRESSÃO DO RESULTADO ###############
 ###################################################
-print "\t// TODO Auto-generated constructor method.\n", if not $quiet;
 # print "\tpublic";
 print "\t";
 print "$modificador " if defined( $modificador = $MODIFICADORES_ACESSO{$acesso} );
 print "$classe(", join(", ", @PARAMETROS), ")"; ### prototipo.
 if($oneLine){
 	print "{";
+	print "\n";
+	print "\t// TODO Auto-generated constructor method.\n", if not $quiet;
 	print join("", @CORPO);
 }
 else{
 	print "\n";
 	print "\t";
 	print "{";
+	print "\t// TODO Auto-generated constructor method.\n", if not $quiet;
 	print "\n";
 	print join("\n", @CORPO);
 	printf "\n";
