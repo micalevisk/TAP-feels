@@ -18,6 +18,7 @@
 * 	toggleBar.opacity()   => altera a transparencia padrao da barra de informacoes.
 * 	maximizarStatus()     => maximiza as questoes com o status passado.
 * 	minimizarStatus()     => minimiza as questoes com o status passado.
+*	getUMLtext()		=> imprime o diagrama UML em modo texto (se existir).
 *
 * 	atividade             => variavel que contem o titulo da atividade.
 * 	qtd                   => variavel que contem a quantidade de questoes.
@@ -245,6 +246,29 @@ function toggleBar(){
 	}
 })(toggleBar)
 
+
+// TODO adicionar .save para exportar o output (que será tratado com um script).
+function getUMLtext(X){
+	if(X){
+
+		var linhas = [], tags = ["filename","attributes","methods"];  // admite que o diagrama possui 3 grupos distintos.
+		var lblTag = "//@";
+		var i=1;
+		$("#"+X).find('tbody').find('tr').each(function() {
+			linha = $(this).text();
+			if(linha.length == 0){
+				if(i < 3){
+					linha = lblTag + tags[i++];
+		    		linhas.push(linha);
+				}
+			}
+		    else linhas.push(linha);
+		});
+		linhas.unshift(lblTag+tags[0]);
+		console.log( linhas.join("\n") );
+
+	}
+}
 
 
 
@@ -498,6 +522,7 @@ if( document.URL.search("webdev.icomp") != -1 ){
 	var qtd = DATA.getElementsByClassName("question").length; // quantidade de questões.
 	var regexRemoveHtml = new RegExp("<[^>]*>","g"); //// ==  /<[^>]*>/g
 	var atividade = document.getElementsByClassName('preface-title')[0].innerHTML;
+	var regexGetUMLdata = new RegExp("([^:]+)(?::\s*(.+))?"); // use para métodos: .replace(reg, "$2 $1(){}");  | use para atributos: .replace(reg, "$2 $1;");
 
 
 	$(document).ready(function() {
