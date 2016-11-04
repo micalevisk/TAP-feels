@@ -1,7 +1,7 @@
 /**
 *	Funcoes para obtencao de informacoes sobre o (seu) banco de questoes do colabweb (T.A.P.).
 *	@author Micael Levi L. C.
-*	@update 11-01-2016, 19:22 (GTM-0400)
+*	@update 11-04-2016, 17:47 (GTM-0400)
 *	@use Acessar as ferramentas de desenvolvedor (F12), ir para a aba Console e inserir o codigo abaixo.
 *
 *
@@ -87,7 +87,7 @@ function status(retornarFormatado){
 		$('#info-info-status').html(info);
 	}
 })(status)
-
+function updateStatus(){ status.show(); }
 
 
 function corretas(){
@@ -292,7 +292,7 @@ function createButton(id, title, element, func){
 }
 
 
-// estado = {"right", "wrong", "indefined"}
+// estado = {"right", "wrong", "undefined"}
 function maximizarStatus(estado, mostrar){
 
 	if(mostrar){
@@ -333,6 +333,23 @@ function minimizarStatus(estado, esconder){
 	});
 }
 
+//217
+function initListenerOnSubmitButton(){
+	$('.file-button').click(function () {
+
+	    lastClickedButton = $(this);
+	    lastClickedButtonFile = $(this).attr("file");
+
+	    qStatus = $(this).parents(".question").find(".file-status[file='" + lastClickedButtonFile + "']");
+	    lastClickedButtonHtml = $(qStatus).html();
+	    lastClickedButtonStatus = $(qStatus).attr("status");
+
+	    // console.log("qStatus = \n"); console.log(qStatus);
+	    // console.log("lastClickedButton = " + lastClickedButton);
+	    // console.log("lastClickedButtonFile =" + lastClickedButtonFile);
+	    // console.log("lastClickedButtonStatus = "+lastClickedButtonStatus); // compara este status com o atual (após o envio)
+	});
+}
 
 // inicializar alterações da grade.
 function initGrade(){
@@ -340,15 +357,15 @@ function initGrade(){
 
 	$('.info-grade-line').click( function(){
 		var barraExtra = $('#info-status');
-		status.show(); // atualizar dados.
+		updateStatus();
 		if( barraExtra.is(":visible") ) barraExtra.hide(100);
 		else barraExtra.show(100);
 	});
 
 	// VERIFICAR:
-	$('.file-status').change( function(){
-		alert("ESTADO DO ARQUIVO alterado");
-	});
+	// $('.file-status').change( function(){
+	// 	alert("ESTADO DO ARQUIVO alterado");
+	// });
 }
 
 // inicializar criações e inserções dos botões
@@ -420,7 +437,7 @@ function initDialog(){
 
 	var para = document.createElement("DIV");
 	var questoes="";
-	$('.question-title').each(function(index){ questoes += "<span class='titulo-questoes' id='"+index+"'>" +$(this).text()+ "<br></span>" ; });
+	$('.question-title').each(function(index){ questoes += "<span class='titulo-questoes' id='"+index+"'>" +$(this).text()+  "<br></span>" ; });
 	para.innerHTML = questoes;
 
 	var dia = document.createElement("DIV");
@@ -450,13 +467,13 @@ function initDialog(){
 		});
 	});
 
-// 	$('.question-title[id="4"]')
-// $('.titulo-questoes[id="4"]')
+	// 	$('.question-title[id="4"]')
+	// $('.titulo-questoes[id="4"]')
 	$('.titulo-questoes').each(function(){
 		cor = "lightgray";
 		qid = $(this).attr("id");
 
-// 		statusDaQuestao = $('div[id="'+ qid +'"]').parent().attr("status").toLocaleLowerCase();
+		// 		statusDaQuestao = $('div[id="'+ qid +'"]').parent().attr("status").toLocaleLowerCase();
 		statusDaQuestao = $('.question-title[id="'+ qid +'"]').parent().attr("status").toLocaleLowerCase();
 		if(statusDaQuestao == "right") cor = "green";
 		else if(statusDaQuestao == "wrong") cor = "red";
@@ -484,9 +501,10 @@ if( document.URL.search("webdev.icomp") != -1 ){
 
 
 	$(document).ready(function() {
-		// definindo ids para as questões
+		// definindo ids para as questões e tabelas UML
+    	// $('.question').each(function(index){  $(this).attr("id", 'question'+index); });
 		$('.question-title').each(function(index){  $(this).attr("id", index); });
-    $('.question').each(function(index){  $(this).attr("id", 'question'+index); });
+		$('.question').each(function(){	currId = $(this).find('.question-title').attr("id"); $(this).find('.uml-class').attr("id", "tbl"+currId); });
 		
 		initGrade();
 		initBotoes();
