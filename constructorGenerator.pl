@@ -107,11 +107,10 @@ if($oneLine){
 	print join("", @CORPO);
 }
 else{
+	print "{";
 	print "\n";
 	print "\t";
-	print "{";
 	print "\t// TODO Auto-generated constructor method.\n", if not $quiet;
-	print "\n";
 	print join("\n", @CORPO);
 	printf "\n";
 }
@@ -149,8 +148,7 @@ sub help{
 
 	SAIDA:
 	======
-	public Mestre(String nome, int anoNascimento, String afiliacao, String posto)
-	{
+	public Mestre(String nome, int anoNascimento, String afiliacao, String posto){
 	\tthis.nome = nome;
 	\tthis.anoNascimento = anoNascimento;
 	\tthis.afiliacao = afiliacao;

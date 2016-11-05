@@ -188,7 +188,7 @@ function tituloQuestoes(mostrarNumero, mostrarArquivo){
 			data = JSON.stringify(data, undefined, 4)
 		}
 
-		var blob = new Blob([data], {type: 'text/json'}),
+		var blob = new Blob([data], {type: 'text'}),
 				e    = document.createEvent('MouseEvents'),
 				a    = document.createElement('a')
 
@@ -247,29 +247,31 @@ function toggleBar(){
 })(toggleBar)
 
 
+// https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Guide/Regular_Expressions
 // TODO adicionar .save para exportar o output (que será tratado com um script).
-function getUMLtext(X){
-	if(X){
-
+function getUMLtext(tblID){
+	if(tblID){
 		var linhas = [], tags = ["filename","attributes","methods"];  // admite que o diagrama possui 3 grupos distintos.
 		var lblTag = "//@";
 		var i=1;
-		$("#"+X).find('tbody').find('tr').each(function() {
+		$("#"+tblID).find('tbody').find('tr').each(function() {
 			linha = $(this).text();
 			if(linha.length == 0){
-				if(i < 3){
-					linha = lblTag + tags[i++];
-		    		linhas.push(linha);
-				}
+				if(i < tags.length){ linhas.push(" "); i++;	}
 			}
-		    else linhas.push(linha);
+			else{
+				if(linha.match(regexAtributos)) linha = linha.replace(regexAtributos, "$2 $1;").trim();
+				else if(linha.match(regexMetodos)) linha = linha.replace(regexMetodos,"$2 $1{}").trim();
+				linhas.push(linha);
+			}
 		});
-		linhas.unshift(lblTag+tags[0]);
-		console.log( linhas.join("\n") );
-
+		linhas.shift(); // admitindo que o primeiro elemento é sempre o nome da classe, remove.
+		linhas.shift();
+// 		linhas = linhas.filter(v => v.length > 1);
+// 		console.log( linhas.join("\n")  );
+		return linhas.join("\n");
 	}
 }
-
 
 
 
@@ -306,13 +308,15 @@ function appendBar(idx, classx, idy){
 
 
 function createButton(id, title, element, func){
-	if(document.getElementById(id) != null) return;
+	if(document.getElementById(id) != null) return null;
 	var button = document.createElement("BUTTON");
 	button.style.cursor = 'pointer';
 	button.id = id;
-  	button.innerHTML = title;
-	button.onclick = func;
+	button.innerHTML = title;
+	if(func) button.onclick = func;
 	element.appendChild(button);
+	
+	return button;
 }
 
 
@@ -357,7 +361,6 @@ function minimizarStatus(estado, esconder){
 	});
 }
 
-//217
 function initListenerOnSubmitButton(){
 	$('.file-button').click(function () {
 
@@ -516,21 +519,41 @@ function initDialog(){
 }
 
 
-if( document.URL.search("webdev.icomp") != -1 ){
 
+// criando e setando botões nos diagramas.
+function initParseUMLButton(){
+		$('.uml-class').each(function(){
+			var idCorrente = $(this).attr("id");
+			var tabelaCorrente = document.getElementById(idCorrente);
+			var buttonID = 'btnGetText-'+idCorrente;
+			createButton(buttonID, "parse UML", document.getElementById(idCorrente));
+			$('#'+buttonID).click(function(){ alert(getUMLtext(idCorrente));	});
+			
+		});		
+}
+
+
+
+
+
+if( (document.URL.search("webdev.icomp") != -1) && (typeof DATA == typeof undefined) ){
+  
 	var DATA = document.getElementsByTagName("DIV")[6].getElementsByTagName("DIV")[1].getElementsByTagName("DIV")[0]; // o banco de questões.
 	var qtd = DATA.getElementsByClassName("question").length; // quantidade de questões.
 	var regexRemoveHtml = new RegExp("<[^>]*>","g"); //// ==  /<[^>]*>/g
 	var atividade = document.getElementsByClassName('preface-title')[0].innerHTML;
-	var regexGetUMLdata = new RegExp("([^:]+)(?::\s*(.+))?"); // use para métodos: .replace(reg, "$2 $1(){}");  | use para atributos: .replace(reg, "$2 $1;");
+// 	var regexGetUMLdata = new RegExp("([^:]+)(?::\\s*(.+))?"); // use para métodos: .replace(reg, "$2 $1{}");  | use para atributos: .replace(reg, "$2 $1;");
+	var regexAtributos = new RegExp("(\\w+):\\s*(.+)"); // .replace(regexAtributos, "$2 $1;").trim();
+	var regexMetodos   = new RegExp("(\\w+\\([^\\)]*\\))(?::\\s*(.+))?"); // .replace(regexMetodos,"$2 $1{}").trim();
 
 
 	$(document).ready(function() {
 		// definindo ids para as questões e tabelas UML
-    	// $('.question').each(function(index){  $(this).attr("id", 'question'+index); });
+		// $('.question').each(function(index){  $(this).attr("id", 'question'+index); });
 		$('.question-title').each(function(index){  $(this).attr("id", index); });
-		$('.question').each(function(){	currId = $(this).find('.question-title').attr("id"); $(this).find('.uml-class').attr("id", "tbl"+currId); });
-		
+		$('.question').each(function(){	currId = $(this).find('.question-title').attr("id"); $(this).find('.uml-class').attr("id", "uml-"+currId); });
+    
+		initParseUMLButton();
 		initGrade();
 		initBotoes();
 		initCheckbox();
@@ -538,7 +561,7 @@ if( document.URL.search("webdev.icomp") != -1 ){
 	});
 }
 else{
-	alert("Não é o colabweb de T.A.P");
+	alert("o script não pode ser injetado!");
 }
 
 
