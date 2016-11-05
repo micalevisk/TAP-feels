@@ -262,7 +262,7 @@ function getUMLtext(tblID){
 			else{
 				if(linha.match(regexAtributos)) linha = linha.replace(regexAtributos, "$2 $1;").trim();
 				else if(linha.match(regexMetodos)) linha = linha.replace(regexMetodos,"$2 $1{}").trim();
-				linhas.push(linha);
+				if(!linhas.contains(linha)) linhas.push(linha);
 			}
 		});
 		linhas.shift(); // admitindo que o primeiro elemento é sempre o nome da classe, remove.
@@ -528,13 +528,12 @@ function initParseUMLButton(){
 			var buttonID = 'btnGetText-'+idCorrente;
 			createButton(buttonID, "parse UML", document.getElementById(idCorrente));
 			$('#'+buttonID).click(function(){ alert(getUMLtext(idCorrente));	});
-			
 		});		
 }
 
 
 
-
+/**************************************************************************************************************************************************/
 
 if( (document.URL.search("webdev.icomp") != -1) && (typeof DATA == typeof undefined) ){
   
