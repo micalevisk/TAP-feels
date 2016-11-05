@@ -27,7 +27,7 @@
 
 // FIXME:
 // ======
-// verificar se o status está atualizando. linha 340.
+// atualizar status na barra ao corrigir questão.
 
 // TODO:
 // =====
@@ -88,7 +88,6 @@ function status(retornarFormatado){
 		$('#info-info-status').html(info);
 	}
 })(status)
-function updateStatus(){ status.show(); }
 
 
 function corretas(){
@@ -269,8 +268,8 @@ function getUMLtext(tblID){
 		});
 		linhas.shift(); // admitindo que o primeiro elemento é sempre o nome da classe, remove.
 		linhas.shift();
-// 		linhas = linhas.filter(v => v.length > 1);
-// 		console.log( linhas.join("\n")  );
+		// 		linhas = linhas.filter(v => v.length > 1);
+		// 		console.log( linhas.join("\n")  );
 		return linhas.join("\n");
 	}
 }
@@ -310,15 +309,13 @@ function appendBar(idx, classx, idy){
 
 
 function createButton(id, title, element, func){
-	if(document.getElementById(id) != null) return null;
+	if(document.getElementById(id) != null) return;
 	var button = document.createElement("BUTTON");
 	button.style.cursor = 'pointer';
 	button.id = id;
 	button.innerHTML = title;
 	if(func) button.onclick = func;
 	element.appendChild(button);
-	
-	return button;
 }
 
 
@@ -363,7 +360,10 @@ function minimizarStatus(estado, esconder){
 	});
 }
 
+// NAO USE POIS ALTERA O PADRÃO.
+/*
 function initListenerOnSubmitButton(){
+	// http://stackoverflow.com/questions/13893138/javascript-click-event-listener-on-multiple-elements-and-get-target-id
 	$('.file-button').click(function () {
 
 	    lastClickedButton = $(this);
@@ -379,6 +379,8 @@ function initListenerOnSubmitButton(){
 	    // console.log("lastClickedButtonStatus = "+lastClickedButtonStatus); // compara este status com o atual (após o envio)
 	});
 }
+*/
+
 
 // inicializar alterações da grade.
 function initGrade(){
@@ -386,7 +388,7 @@ function initGrade(){
 
 	$('.info-grade-line').click( function(){
 		var barraExtra = $('#info-status');
-		updateStatus();
+		status.show();
 		if( barraExtra.is(":visible") ) barraExtra.hide(100);
 		else barraExtra.show(100);
 	});
@@ -427,7 +429,7 @@ function initBotoes(){
 			funcNova = $('#btnToggleCorretas').attr("onclick").replace(/maximizar|minimizar/i, max_min);
 			// $('#btnToggleCorretas').attr("onclick", funcNova);
 			$.ajax({
-			// (c) http://stackoverflow.com/questions/17987607/using-jquery-attr-or-prop-to-set-attribute-value-not-working
+				// (c) http://stackoverflow.com/questions/17987607/using-jquery-attr-or-prop-to-set-attribute-value-not-working
 				success: function (result) {
 					$('#btnToggleCorretas').attr("onclick", funcNova);
 		            }
@@ -524,17 +526,17 @@ function initDialog(){
 
 // criando e setando botões nos diagramas.
 function initParseUMLButton(){
-		$('.uml-class').each(function(){
-			var idCorrente = $(this).attr("id");
-			var tabelaCorrente = document.getElementById(idCorrente);
-			var buttonID = 'btnGetText-'+idCorrente;
-			createButton(buttonID, "parse UML", document.getElementById(idCorrente));
-			$('#'+buttonID).click(function(){ 
-				var UMLtexto = getUMLtext(idCorrente);
-				alert(UMLtexto);	
-				console.log(UMLtexto);
-			});
-		});		
+	$('.uml-class').each(function(){
+		var idCorrente = $(this).attr("id");
+		var tabelaCorrente = document.getElementById(idCorrente);
+		var buttonID = 'btnGetText-'+idCorrente;
+		createButton(buttonID, "parse UML", document.getElementById(idCorrente));
+		$('#'+buttonID).click(function(){
+			var UMLtexto = getUMLtext(idCorrente);
+			console.log(UMLtexto);
+			alert(UMLtexto);
+		});
+	});
 }
 
 
@@ -542,22 +544,28 @@ function initParseUMLButton(){
 /**************************************************************************************************************************************************/
 
 if( (document.URL.search("webdev.icomp") != -1) && (typeof DATA == typeof undefined) ){
-  
+
 	var DATA = document.getElementsByTagName("DIV")[6].getElementsByTagName("DIV")[1].getElementsByTagName("DIV")[0]; // o banco de questões.
 	var qtd = DATA.getElementsByClassName("question").length; // quantidade de questões.
 	var regexRemoveHtml = new RegExp("<[^>]*>","g"); //// ==  /<[^>]*>/g
 	var atividade = document.getElementsByClassName('preface-title')[0].innerHTML;
-// 	var regexGetUMLdata = new RegExp("([^:]+)(?::\\s*(.+))?"); // use para métodos: .replace(reg, "$2 $1{}");  | use para atributos: .replace(reg, "$2 $1;");
 	var regexAtributos = new RegExp("(\\w+):\\s*(.+)"); // .replace(regexAtributos, "$2 $1;").trim();
 	var regexMetodos   = new RegExp("(\\w+\\([^\\)]*\\))(?::\\s*(.+))?"); // .replace(regexMetodos,"$2 $1{}").trim();
 
 
 	$(document).ready(function() {
-		// definindo ids para as questões e tabelas UML
-		// $('.question').each(function(index){  $(this).attr("id", 'question'+index); });
-		$('.question-title').each(function(index){  $(this).attr("id", index); });
-		$('.question').each(function(){	currId = $(this).find('.question-title').attr("id"); $(this).find('.uml-class').attr("id", "uml-"+currId); });
-    
+
+		$('.question-title').each(function(index){
+			$(this).attr("id", index);
+		});
+		$('.question').each(function(index){
+		 	$(this).attr("id", 'questao'+(index+1));
+			$(this).find('.uml-class').attr("id", "uml-"+index);
+
+			// currId = $(this).find('.question-title').attr("id");
+			// $(this).find('.uml-class').attr("id", "uml-"+currId);
+		});
+
 		initParseUMLButton();
 		initGrade();
 		initBotoes();
