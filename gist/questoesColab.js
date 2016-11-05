@@ -24,6 +24,9 @@
 **/
 
 
+// FIXME:
+// ======
+// Atualizar cor no dialog quando for atualizar o status da questão (otimizar para nao precisar do .each).
 
 // TODO:
 // =====
@@ -359,6 +362,19 @@ function getUMLtext(tblID){
 }
 
 
+function atualizarCoresQuestoesDialog(){
+	$('.titulo-questoes').each(function(){
+		var questionTitleID = $(this).attr("id");
+		var cor = "lightgray";
+
+		statusDaQuestao = $('.question-title[id="'+ questionTitleID +'"]').parent().attr("status").toLocaleLowerCase();
+		if(statusDaQuestao == "right") cor = "green";
+		else if(statusDaQuestao == "wrong") cor = "red";
+		$('.titulo-questoes[id="' + questionTitleID +'"]').css("color", cor);
+	});
+}
+
+
 
 // ========================= [ INICIALIZADORES ] ========================= //
 
@@ -492,17 +508,7 @@ function initDialog(){
 
 	// 	$('.question-title[id="4"]')
 	// $('.titulo-questoes[id="4"]')
-	$('.titulo-questoes').each(function(){
-		cor = "lightgray";
-		qid = $(this).attr("id");
-
-		// 		statusDaQuestao = $('div[id="'+ qid +'"]').parent().attr("status").toLocaleLowerCase();
-		statusDaQuestao = $('.question-title[id="'+ qid +'"]').parent().attr("status").toLocaleLowerCase();
-		if(statusDaQuestao == "right") cor = "green";
-		else if(statusDaQuestao == "wrong") cor = "red";
-
-		$(this).css("color", cor);
-	});
+	$('.titulo-questoes').each(function(){ atualizarCoresQuestoesDialog(); });
 	$('.titulo-questoes').css('cursor', 'pointer');
 
 	// Ao clicar na questão X de id X-1, vá para o objeto $('.question')[X-1]; $("span[id='0']") é a questão 1; .text() é o seu título.
@@ -656,7 +662,10 @@ function alterarFileupload() {
             var atualizarStatus = ( lastClickedButtonStatus !==  qStatus.attr("status") );
 
             updateStatus();
-	    if(atualizarStatus) status.show();
+	    if(atualizarStatus){
+		     status.show();
+		     atualizarCoresQuestoesDialog();
+	    }
 
             if (typeof result.grade !== "undefined") {
                 $("#grade").html(result.grade);
