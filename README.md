@@ -21,5 +21,7 @@ _O código deve possuir uma linha comentada com a tag "@attN", onde "N" é quant
 ./construtor.sh -d -i <File.java>
 ```
 
+### USO:
+[![asciicast](https://asciinema.org/a/91760.png)](https://asciinema.org/a/91760)
 
 [emojis](http://www.webpagefx.com/tools/emoji-cheat-sheet/)
