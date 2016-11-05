@@ -1,9 +1,8 @@
 /**
 *	Funcoes para obtencao de informacoes sobre o (seu) banco de questoes do colabweb (T.A.P.).
 *	@author Micael Levi L. C.
-*	@update 11-04-2016, 17:47 (GTM-0400)
-*	@use Acessar as ferramentas de desenvolvedor (F12), ir para a aba Console e inserir o codigo abaixo.
-*
+*	@version 11-05-2016, 16:33 (GTM-0400)
+*	https://github.com/micalevisk/TAP_feelings/tree/master/gist
 *
 *	status()              => retorna a quantidade de questoes resolvidas, erradas e indefindas.
 * 	status.show()         => (cria e) insere retorno da funcao 'status' na barra de informacoes.
@@ -25,9 +24,6 @@
 **/
 
 
-// FIXME:
-// ======
-// atualizar status na barra ao corrigir questão.
 
 // TODO:
 // =====
@@ -59,7 +55,8 @@ function status(retornarFormatado){
 	*/
 	resolvidas = $('.question[status="right"]').length;
 	erradas = $('.question[status="wrong"]').length
-	indefinidas = qtd - (resolvidas+erradas);
+	indefinidas = $('.question[status="undefined"]').length
+	// indefinidas = qtd - (resolvidas+erradas);
 
 	var results = resolvidas + ':' + erradas + ':' + indefinidas; // resolvidas:erradas:indefinidas
 	if(retornarFormatado) return results;
@@ -84,7 +81,7 @@ function status(retornarFormatado){
 		}
 
 		if(naoMostrar) $('#info-status').hide();
-		var info = status(1).replace(/(\d+):(\d+):(\d+)/, "$1 resolvida(s), $2 errada(s), $3 não enviada(s)");
+		var info = status(1).replace(/(\d+):(\d+):(\d+)/, "$1 resolvida(s) $2 errada(s) $3 não enviada(s)");
 		$('#info-info-status').html(info);
 	}
 })(status)
@@ -248,35 +245,9 @@ function toggleBar(){
 
 
 
-// https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Guide/Regular_Expressions
-// TODO adicionar .save para exportar o output (que será tratado com um script).
-function getUMLtext(tblID){
-	if(tblID){
-		var linhas = [], tags = ["filename","attributes","methods"];  // admite que o diagrama possui 3 grupos distintos.
-		var lblTag = "//@";
-		var i=1;
-		$("#"+tblID).find('tbody').find('tr').each(function() {
-			var linha = $(this).text();
-			if(linha.length == 0){
-				if(i < tags.length){ linhas.push(" "); i++;	}
-			}
-			else{
-					if(linha.match(regexAtributos)) linha = linha.replace(regexAtributos, "$2 $1;").trim();
-					else if(linha.match(regexMetodos)) linha = linha.replace(regexMetodos,"$2 $1{}").trim();
-					if(!linhas.contains(linha)) linhas.push(linha);
-			}
-		});
-		linhas.shift(); // admitindo que o primeiro elemento é sempre o nome da classe, remove.
-		linhas.shift();
-		// 		linhas = linhas.filter(v => v.length > 1);
-		// 		console.log( linhas.join("\n")  );
-		return linhas.join("\n");
-	}
-}
-
-
-
 // ========================= [ AUXILIARES ] ========================= //
+
+
 function addAspas(str){
 	return str.replace(/^(.*)$/, "\"$1\"");
 }
@@ -360,27 +331,48 @@ function minimizarStatus(estado, esconder){
 	});
 }
 
-// NAO USE POIS ALTERA O PADRÃO.
-/*
-function initListenerOnSubmitButton(){
-	// http://stackoverflow.com/questions/13893138/javascript-click-event-listener-on-multiple-elements-and-get-target-id
-	$('.file-button').click(function () {
 
-	    lastClickedButton = $(this);
-	    lastClickedButtonFile = $(this).attr("file");
+// https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Guide/Regular_Expressions
+// TODO adicionar .save para exportar o output (que será tratado com um script).
+function getUMLtext(tblID){
+	if(tblID){
+		var linhas = [], tags = ["filename","attributes","methods"];  // admite que o diagrama possui 3 grupos distintos.
+		var lblTag = "//@";
+		var i=1;
+		$("#"+tblID).find('tbody').find('tr').each(function() {
+			var linha = $(this).text();
+			if(linha.length == 0){
+				if(i < tags.length){ linhas.push(" "); i++;	}
+			}
+			else{
+					if(linha.match(regexAtributos)) linha = linha.replace(regexAtributos, "$2 $1;").trim();
+					else if(linha.match(regexMetodos)) linha = linha.replace(regexMetodos,"$2 $1{}").trim();
+					if(!linhas.contains(linha)) linhas.push(linha);
+			}
+		});
+		linhas.shift(); // admitindo que o primeiro elemento é sempre o nome da classe, remove.
+		linhas.shift();
+		// 		linhas = linhas.filter(v => v.length > 1);
+		// 		console.log( linhas.join("\n")  );
+		return linhas.join("\n");
+	}
+}
 
-	    qStatus = $(this).parents(".question").find(".file-status[file='" + lastClickedButtonFile + "']");
-	    lastClickedButtonHtml = $(qStatus).html();
-	    lastClickedButtonStatus = $(qStatus).attr("status");
 
-	    // console.log("qStatus = \n"); console.log(qStatus);
-	    // console.log("lastClickedButton = " + lastClickedButton);
-	    // console.log("lastClickedButtonFile =" + lastClickedButtonFile);
-	    // console.log("lastClickedButtonStatus = "+lastClickedButtonStatus); // compara este status com o atual (após o envio)
+
+// ========================= [ INICIALIZADORES ] ========================= //
+
+
+// define id para as questões e tabelas de diagramas UML.
+function initTitulosQuestoes(){
+	$('.question-title').each(function(index){
+		$(this).attr("id", index);
+	});
+	$('.question').each(function(index){
+		$(this).attr("id", 'questao'+(index+1));
+		$(this).find('.uml-class').attr("id", "uml-"+index);
 	});
 }
-*/
-
 
 // inicializar alterações da grade.
 function initGrade(){
@@ -522,8 +514,6 @@ function initDialog(){
 
 }
 
-
-
 // criando e setando botões nos diagramas.
 function initParseUMLButton(){
 	$('.uml-class').each(function(){
@@ -541,7 +531,7 @@ function initParseUMLButton(){
 
 
 
-/**************************************************************************************************************************************************/
+// ====================================== [ MAIN ] ====================================== //
 
 if( (document.URL.search("webdev.icomp") != -1) && (typeof DATA == typeof undefined) ){
 
@@ -554,23 +544,14 @@ if( (document.URL.search("webdev.icomp") != -1) && (typeof DATA == typeof undefi
 
 
 	$(document).ready(function() {
-
-		$('.question-title').each(function(index){
-			$(this).attr("id", index);
-		});
-		$('.question').each(function(index){
-		 	$(this).attr("id", 'questao'+(index+1));
-			$(this).find('.uml-class').attr("id", "uml-"+index);
-
-			// currId = $(this).find('.question-title').attr("id");
-			// $(this).find('.uml-class').attr("id", "uml-"+currId);
-		});
-
+		initTitulosQuestoes();
 		initParseUMLButton();
 		initGrade();
 		initBotoes();
 		initCheckbox();
 		initDialog();
+
+		alterarFileupload(); // adicona verificador de status para atualizar a barra de status quando a questão alterar de status.
 	});
 }
 else{
@@ -578,19 +559,125 @@ else{
 }
 
 
-/* //// [OLD BUT GOLD] ////
-	$('.titulo-questoes').mouseover(function(){
-		cor = "red";
-		qid = $(this).attr("id");
-		statusDaQuestao = $('#'+qid).parent().attr("status").toLocaleLowerCase();
-
-		if(statusDaQuestao == "right") cor = "green";
-		$(this).css("color", cor);
-	});
-	$('.titulo-questoes').mouseout(function(){ $(this).css("color", "black"); });
-*/
 
 
+// ========================= [ NAO AUTORAIS ] ========================= //
+
+
+// (c) https://webdev.icomp.ufam.edu.br/lab/res/scripts.js
+function alterarFileupload() {
+    $("#fileupload").fileupload({
+        dataType: "json",
+        url: "",
+        autoUpload: true,
+        singleFileUploads: false,
+        maxNumberOfFiles: 100,
+        formData: { ajax_func: "checkFiles" },
+        start: function (e) {
+        },
+        add: function(e, data) {
+            qDiv = $(lastClickedButton).parents(".question");
+            //qStatus = $(qDiv).find(".file-status");
+            qStatus = $(qDiv).find(".file-status[file='" + lastClickedButtonFile + "']");
+            $(qStatus).html("Verificando arquivo(s) ...");
+
+            if (data.files.length > acceptedFiles.length) {
+                $(qStatus).attr("status", "error").html("Quantidade de arquivos maior que o aceito!");
+                return;
+            }
+
+            for (i=0; i<data.files.length; i++) {
+                name = data.files[i].name;
+                extension = name.substr(name.lastIndexOf(".")+1).toLowerCase();
+
+                if (allowedExts.indexOf(extension) == -1) {
+                    $(qStatus).attr("status", "error").html("Extensão de arquivo inválida (" + extension + ")!");
+                    console.log("Extensao " + extension + " nao está em:");
+                    console.log(allowedExts);
+                    return;
+                }
+
+                if (acceptedFiles.indexOf(name) == -1) {
+                    $(qStatus).attr("status", "error").html("Nome de arquivo inválido (" + name + ")!");
+                    return;
+                }
+
+                if (data.files[i].size > 10000000) {
+                    $(qStatus).attr("status", "error").html("Tamanho de arquivo maior que o permitido!");
+                    return;
+                }
+
+            }
+
+            for (i=0; i<data.files.length; i++) {
+                name = data.files[i].name.substr(0, data.files[i].name.length-5);
+                qDiv = $("#File_" + name).parents(".question");
+                qStatus = $(qDiv).find(".file-status").attr("status", "unknown").html("Enviando e corrigindo arquivo ...");
+                $(qDiv).attr("status", "unknown");
+            }
+
+            fileUploadRequest = data.submit();
+            longExperimentsExecuting = true;
+            if ($(lastClickedButton).hasAttr("time")) {
+                longExperimentsTimer = setTimeout(function () { updateLongExperiments(2, $(lastClickedButton).attr("time"), false) }, 2000);
+            } else {
+                longExperimentsTimer = setTimeout(function () { updateLongExperiments(10, 10, true) }, 10000);
+            }
+
+        },
+        drop: function (e, data) {
+            lastClickedButton = $(".file-button").first();
+        },
+        done: function (e, data) {
+            hideLongExperiments();
+
+            qDiv = $(lastClickedButton).parents(".question");
+            qStatus = $(qDiv).find(".file-status[file='" + lastClickedButtonFile + "']").attr("status", lastClickedButtonStatus).html(lastClickedButtonHtml);
+
+            result = data.result;
+
+            if (result.status == "ok") {
+                for (var fileId in result.files) {
+                    if (result.files.hasOwnProperty(fileId)) {
+                        file = result.files[fileId];
+                        //fDiv = $(".file[file='" + fileId + "']").attr("grade", file.grade).attr("grade-max", file.gradeMax);
+                        $(".file-button-all[file='" + fileId + "']").attr("status", file.status).attr("grade", file.grade).attr("grade-max", file.gradeMax);
+                        $(".file-status[file='" + fileId + "']").attr("status", file.status).html(file.statusMsg);
+                        $(".file-messages[file='" + fileId + "']").html(file.fileMsg.replaceAll(" \\[NL\\] ", "<br>"));
+                    }
+                }
+            }
+            else {
+                $(qStatus).attr("status", "error").html(result.message);
+                $(qDiv).find(".file-button-all[file='" + lastClickedButtonFile + "']").attr("status", "error");
+                $(qDiv).find(".file-messages[file='" + lastClickedButtonFile + "']").attr("status", "error").html("");
+            }
+
+            var atualizarStatus = ( lastClickedButtonStatus !==  qStatus.attr("status") );
+
+            updateStatus();
+	    if(atualizarStatus) status.show();
+
+            if (typeof result.grade !== "undefined") {
+                $("#grade").html(result.grade);
+            }
+            if (typeof result.countdown !== "undefined") {
+                countdown = result.countdown;
+                updateCountdown();
+            }
+
+            lastClickedButton = null;
+            fileUploadRequest = null;
+        },
+        fail: function (e, data) {
+            hideLongExperiments();
+            qDiv = $(lastClickedButton).parents(".question");
+            qStatus = $(qDiv).find(".file-status[file='" + lastClickedButtonFile + "']").attr("status", "error").html("Erro ao enviar aquivo!");
+            lastClickedButton = null;
+            fileUploadRequest = null;
+        }
+    });
+}
 
 
 // (c) http://stackoverflow.com/questions/11849562/how-to-save-the-output-of-a-console-logobject-to-a-file
@@ -650,13 +737,11 @@ function goTo(h){
 }
 
 
-/**
- * (c) https://css-tricks.com/snippets/javascript/javascript-array-contains/
- * Array.prototype.[method name] allows you to define/overwrite an objects method
- * needle is the item you are searching for
- * this is a special variable that refers to "this" instance of an Array.
- * returns true if needle is in the array, and false otherwise
- */
+// (c) https://css-tricks.com/snippets/javascript/javascript-array-contains/
+// Array.prototype.[method name] allows you to define/overwrite an objects method
+// needle is the item you are searching for
+// this is a special variable that refers to "this" instance of an Array.
+// returns true if needle is in the array, and false otherwise
 Array.prototype.contains = function ( needle ) {
    for (i in this) {
        if (this[i] == needle) return true;
