@@ -247,6 +247,8 @@ function toggleBar(){
 })(toggleBar)
 
 
+
+
 // https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Guide/Regular_Expressions
 // TODO adicionar .save para exportar o output (que será tratado com um script).
 function getUMLtext(tblID){
@@ -255,14 +257,14 @@ function getUMLtext(tblID){
 		var lblTag = "//@";
 		var i=1;
 		$("#"+tblID).find('tbody').find('tr').each(function() {
-			linha = $(this).text();
+			var linha = $(this).text();
 			if(linha.length == 0){
 				if(i < tags.length){ linhas.push(" "); i++;	}
 			}
 			else{
-				if(linha.match(regexAtributos)) linha = linha.replace(regexAtributos, "$2 $1;").trim();
-				else if(linha.match(regexMetodos)) linha = linha.replace(regexMetodos,"$2 $1{}").trim();
-				if(!linhas.contains(linha)) linhas.push(linha);
+					if(linha.match(regexAtributos)) linha = linha.replace(regexAtributos, "$2 $1;").trim();
+					else if(linha.match(regexMetodos)) linha = linha.replace(regexMetodos,"$2 $1{}").trim();
+					if(!linhas.contains(linha)) linhas.push(linha);
 			}
 		});
 		linhas.shift(); // admitindo que o primeiro elemento é sempre o nome da classe, remove.
@@ -633,4 +635,19 @@ function goTo(h){
 	$('html, body').animate({
     scrollTop: $('#'+h).offset().top
    }, 500);
+}
+
+
+/**
+ * (c) https://css-tricks.com/snippets/javascript/javascript-array-contains/
+ * Array.prototype.[method name] allows you to define/overwrite an objects method
+ * needle is the item you are searching for
+ * this is a special variable that refers to "this" instance of an Array.
+ * returns true if needle is in the array, and false otherwise
+ */
+Array.prototype.contains = function ( needle ) {
+   for (i in this) {
+       if (this[i] == needle) return true;
+   }
+   return false;
 }
