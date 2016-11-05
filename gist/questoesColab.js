@@ -529,7 +529,11 @@ function initParseUMLButton(){
 			var tabelaCorrente = document.getElementById(idCorrente);
 			var buttonID = 'btnGetText-'+idCorrente;
 			createButton(buttonID, "parse UML", document.getElementById(idCorrente));
-			$('#'+buttonID).click(function(){ alert(getUMLtext(idCorrente));	});
+			$('#'+buttonID).click(function(){ 
+				var UMLtexto = getUMLtext(idCorrente);
+				alert(UMLtexto);	
+				console.log(UMLtexto);
+			});
 		});		
 }
 
