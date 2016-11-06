@@ -5,7 +5,7 @@
 *	https://github.com/micalevisk/TAP_feelings/tree/master/gist
 *
 *	status()              => retorna a quantidade de questoes resolvidas, erradas e indefindas.
-* 	status.show()         => (cria e) insere retorno da funcao 'status' na barra de informacoes.
+* 	atualizarStatusBar()         => (cria e) insere retorno da funcao 'status' na barra de informacoes.
 *	corretas()	      => retorna o titulo das questoes corrigidas.
 *	erradas()	      => retorna o titulo das questoes erradas.
 *	pendentes()	      => retorna o titulo das questoes pendentes (nao enviadas ou erradas).
@@ -38,6 +38,11 @@
 // Alterar o click do botão que vai para questão, por um href com o id da questão. (#questionQ)
 // http://stackoverflow.com/questions/179713/how-to-change-the-href-for-a-hyperlink-using-jquery
 // $('.question-title').each(function(index){ questoes += "<a href='#question4' class='titulo-questoes' id='"+index+"'>" +$(this).text()+ "<br></a>"; });
+// Marcar/desmarcar texto selecionado (nas questões);
+// http://www.michaelpstone.net/development/jquery/highlight-and-capture-text-using-jquery/
+// https://www.sitepoint.com/10-jquery-text-highlighter-plugins/
+// Adicionar efeito "+X pontos", onde X corresponde aos pontos ganhos na questão enviada, que aparece e desaparece rapidamente (com .show.fadeOut(1000))
+// https://api.jquery.com/select/
 
 
 
@@ -80,7 +85,7 @@ function status(retornarFormatado){
 		$('#info-info-status').html(info);
 	}
 })(status)
-
+function atualizarStatusBar(){ status.show(); }
 
 function corretas(){
 	var results="";
@@ -388,7 +393,7 @@ function initGrade(){
 
 	$('.info-grade-line').click( function(){
 		var barraExtra = $('#info-status');
-		status.show();
+		atualizarStatusBar();
 		if( barraExtra.is(":visible") ) barraExtra.hide(100);
 		else barraExtra.show(100);
 	});
@@ -639,7 +644,7 @@ function alterarFileupload() {
 
             updateStatus();
 	    if(atualizarStatus){
-		     status.show();
+		     atualizarStatusBar();
 		     atualizarCoresQuestoesDialog();
 	    }
 
