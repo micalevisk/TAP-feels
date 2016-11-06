@@ -541,8 +541,8 @@ function initToggleColor(){
 	*/
 	$("li").dblclick( function(){
 	  var corAtual = $(this).css('background-color');
-	  if(corAtual != "rgb(255, 255, 0)") corAtual = "yellow";
-	  else corAtual = "transparent";
+	  if(corAtual != "transparent") corAtual = "transparent";
+	  else corAtual = "#ffff7b";
 	  $(this).css('background-color', corAtual);
 	})
 }
