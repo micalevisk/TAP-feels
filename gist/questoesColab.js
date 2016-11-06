@@ -1,7 +1,7 @@
 /**
 *	Funcoes para obtencao de informacoes sobre o (seu) banco de questoes do colabweb (T.A.P.).
 *	@author Micael Levi L. C.
-*	@version 11-05-2016, 16:33 (GTM-0400)
+*	@version 11-06-2016, 13:03 (GTM-0400)
 *	https://github.com/micalevisk/TAP_feelings/tree/master/gist
 *
 *	status()              => retorna a quantidade de questoes resolvidas, erradas e indefindas.
@@ -43,23 +43,15 @@
 
 
 function status(retornarFormatado){
-	var resolvidas=0;
-	var erradas=0;
-	var indefinidas=0;
-
 	/*
-	for(var i=0; i < qtd; i++){
-		var questao = DATA.getElementsByClassName("question")[i];
-		var status  = questao.getAttribute("status");
-		if(status.localeCompare("right") == 0) resolvidas++;
-		else if(status.localeCompare("wrong") == 0) erradas++;
-		else indefinidas++;
-	}
+	var resolvidas = $('.question[status="right"]').length;
+	var erradas = $('.question[status="wrong"]').length;
+	var indefinidas = $('.question[status="undefined"]').length; // indefinidas = qtd - (resolvidas+erradas);
 	*/
-	resolvidas = $('.question[status="right"]').length;
-	erradas = $('.question[status="wrong"]').length
-	indefinidas = $('.question[status="undefined"]').length
-	// indefinidas = qtd - (resolvidas+erradas);
+
+	var resolvidas = $('.file-button-all[status="ok"]').length;
+	var erradas = $('.file-button-all[status="error"]').length;
+	var indefinidas = $('.file-button-all[status="not-submitted"]').length;
 
 	var results = resolvidas + ':' + erradas + ':' + indefinidas; // resolvidas:erradas:indefinidas
 	if(retornarFormatado) return results;
@@ -744,6 +736,12 @@ if(document.URL.search("webdev.icomp") != -1){
 
 
 	$(document).ready(function() {
+
+		// Altera o rótulo "Sair" para "Voltar" (manter coerência).
+		var botaoSairObject = $('#info-sair').find("nobr");
+		var botaoSairInnerHTML = botaoSairObject.html();
+		botaoSairObject.html(botaoSairInnerHTML.replace(/sair/i, "Voltar"))
+
 		initTitulosQuestoes();
 		initParseUMLButton();
 		initGrade();
