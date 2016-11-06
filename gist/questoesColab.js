@@ -537,36 +537,6 @@ function initParseUMLButton(){
 
 
 
-// ====================================== [ MAIN ] ====================================== //
-
-if( (document.URL.search("webdev.icomp") != -1) && (typeof DATA == typeof undefined) ){
-
-	var DATA = document.getElementsByTagName("DIV")[6].getElementsByTagName("DIV")[1].getElementsByTagName("DIV")[0]; // o banco de questões.
-	var qtd = DATA.getElementsByClassName("question").length; // quantidade de questões.
-	var regexRemoveHtml = new RegExp("<[^>]*>","g"); //// ==  /<[^>]*>/g
-	var atividade = document.getElementsByClassName('preface-title')[0].innerHTML;
-	var regexAtributos = new RegExp("(\\w+):\\s*(.+)"); // .replace(regexAtributos, "$2 $1;").trim();
-	var regexMetodos   = new RegExp("(\\w+\\([^\\)]*\\))(?::\\s*(.+))?"); // .replace(regexMetodos,"$2 $1{}").trim();
-
-
-	$(document).ready(function() {
-		initTitulosQuestoes();
-		initParseUMLButton();
-		initGrade();
-		initBotoes();
-		initCheckbox();
-		initDialog();
-
-		alterarFileupload(); // adicona verificador de status para atualizar a barra de status quando a questão alterar de status.
-	});
-}
-else{
-	alert("o script não pode ser injetado!");
-}
-
-
-
-
 // ========================= [ NAO AUTORAIS ] ========================= //
 
 
@@ -756,4 +726,34 @@ Array.prototype.contains = function ( needle ) {
        if (this[i] == needle) return true;
    }
    return false;
+}
+
+
+
+// ====================================== [ MAIN ] ====================================== //
+
+if(document.URL.search("webdev.icomp") != -1){
+
+	if(typeof DATA == typeof undefined)
+	 DATA = document.getElementsByTagName("DIV")[6].getElementsByTagName("DIV")[1].getElementsByTagName("DIV")[0]; // o banco de questões.
+	var qtd = DATA.getElementsByClassName("question").length; // quantidade de questões.
+	var regexRemoveHtml = new RegExp("<[^>]*>","g"); //// ==  /<[^>]*>/g
+	var atividade = document.getElementsByClassName('preface-title')[0].innerHTML;
+	var regexAtributos = new RegExp("(\\w+):\\s*(.+)"); // .replace(regexAtributos, "$2 $1;").trim();
+	var regexMetodos   = new RegExp("(\\w+\\([^\\)]*\\))(?::\\s*(.+))?"); // .replace(regexMetodos,"$2 $1{}").trim();
+
+
+	$(document).ready(function() {
+		initTitulosQuestoes();
+		initParseUMLButton();
+		initGrade();
+		initBotoes();
+		initCheckbox();
+		initDialog();
+
+		alterarFileupload(); // adicona verificador de status para atualizar a barra de status quando a questão alterar de status.
+	});
+}
+else{
+	alert("o script não pode ser injetado!");
 }
