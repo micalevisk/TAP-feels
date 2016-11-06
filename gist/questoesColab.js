@@ -528,6 +528,20 @@ function initParseUMLButton(){
 }
 
 
+// (c) https://api.jquery.com/dblclick/
+function initToggleColor(){
+	/* "highlight" objetos com a tag 'li' quando o cursor estiver em cima.
+	$("li").mouseover( function(){ $(this).css('background-color', 'yellow'); } )
+	$("li").hover( function(){ $(this).css('background-color', ''); } )
+	*/
+	$("li").dblclick( function(){
+	  var corAtual = $(this).css('background-color');
+	  if(corAtual != "rgb(255, 255, 0)") corAtual = "yellow";
+	  else corAtual = "transparent";
+	  $(this).css('background-color', corAtual);
+	})
+}
+
 
 // ========================= [ NAO AUTORAIS ] ========================= //
 
@@ -740,7 +754,7 @@ if(document.URL.search("webdev.icomp") != -1){
 		// Altera o rótulo "Sair" para "Voltar" (manter coerência).
 		var botaoSairObject = $('#info-sair').find("nobr");
 		var botaoSairInnerHTML = botaoSairObject.html();
-		botaoSairObject.html(botaoSairInnerHTML.replace(/sair/i, "Voltar"))
+		botaoSairObject.html(botaoSairInnerHTML.replace(/sair/i, "Voltar"));
 
 		initTitulosQuestoes();
 		initParseUMLButton();
@@ -750,6 +764,7 @@ if(document.URL.search("webdev.icomp") != -1){
 		initDialog();
 
 		alterarFileupload(); // adicona verificador de status para atualizar a barra de status quando a questão alterar de status.
+		initToggleColor(); // altera a cor de fundo dos objetos (da tag 'li') ao dar dois cliques sobre eles.
 	});
 }
 else{
