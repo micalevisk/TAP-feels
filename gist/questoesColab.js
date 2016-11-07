@@ -1,26 +1,26 @@
 /**
-*	Funcoes para obtencao de informacoes sobre o (seu) banco de questoes do colabweb (T.A.P.).
+*	Adiciona funcoes extras no colabweb da disciplina TAP (2016/2).
 *	@author Micael Levi L. C.
-*	@version 11-06-2016, 13:03 (GTM-0400)
-*	https://github.com/micalevisk/TAP_feelings/tree/master/gist
+*	@version 11-06-2016, 21:45 (GTM-0400)
+*	http://bit.ly/colabhack
 *
-*	status()              => retorna a quantidade de questoes resolvidas, erradas e indefindas.
-* 	atualizarStatusBar()         => (cria e) insere retorno da funcao 'status' na barra de informacoes.
-*	corretas()	      => retorna o titulo das questoes corrigidas.
-*	erradas()	      => retorna o titulo das questoes erradas.
-*	pendentes()	      => retorna o titulo das questoes pendentes (nao enviadas ou erradas).
-* 	tituloQuestoes()      => retorna o titulo de todas as questões (com o nome do arquivo/classe se o arguemento for 1 ou true).
-* 	tituloQuestoes.save() => salva em um arquivo (e nao mostra no console) de nome 'tituloQuestoes-hhmm.txt'.
-* 	arquivosDasQuestoes() => retorna os nomes dos arquivos de cada questao.
-* 	nota()                => retorna a sua nota atual.
-* 	toggleBar()           => altera a transparencia da barra de informacoes (menos/mais visivel, com transparencia 0.5).
-* 	toggleBar.opacity()   => altera a transparencia padrao da barra de informacoes.
-* 	maximizarStatus()     => maximiza as questoes com o status passado.
-* 	minimizarStatus()     => minimiza as questoes com o status passado.
+*	status()              	=> retorna a quantidade de questoes resolvidas, erradas e indefindas.
+* 	atualizarStatusBar()	=> (cria e) insere retorno da funcao 'status' na barra de informacoes.
+*	corretas()	      	=> retorna o titulo das questoes corrigidas.
+*	erradas()	      	=> retorna o titulo das questoes erradas.
+*	pendentes()	      	=> retorna o titulo das questoes pendentes (nao enviadas ou erradas).
+* 	tituloQuestoes()      	=> retorna o titulo de todas as questões (com o nome do arquivo/classe se o arguemento for 1 ou true).
+* 	tituloQuestoes.save() 	=> salva em um arquivo (e nao mostra no console) de nome 'tituloQuestoes-hhmm.txt'.
+* 	arquivosDasQuestoes() 	=> retorna os nomes dos arquivos de cada questao.
+* 	nota()                	=> retorna a sua nota atual.
+* 	toggleBar()           	=> altera a transparencia da barra de informacoes (menos/mais visivel, com transparencia 0.5).
+* 	toggleBar.opacity()   	=> altera a transparencia padrao da barra de informacoes.
+* 	maximizarStatus()     	=> maximiza as questoes com o status passado.
+* 	minimizarStatus()     	=> minimiza as questoes com o status passado.
 *	getUMLtext()		=> imprime o diagrama UML em modo texto (se existir).
 *
-* 	atividade             => variavel que contem o titulo da atividade.
-* 	qtd                   => variavel que contem a quantidade de questoes.
+* 	atividade             	=> variavel que contem o titulo da atividade.
+* 	qtd                   	=> variavel que contem a quantidade de questoes.
 **/
 
 
@@ -43,6 +43,7 @@
 // https://www.sitepoint.com/10-jquery-text-highlighter-plugins/
 // Adicionar efeito "+X pontos", onde X corresponde aos pontos ganhos na questão enviada, que aparece e desaparece rapidamente (com .show.fadeOut(1000))
 // https://api.jquery.com/select/
+// Adicionar "teclas de atalho" ao pressionar o Alt, para ativar os botões criados.
 
 
 
@@ -60,13 +61,7 @@ function status(retornarFormatado){
 
 	var results = resolvidas + ':' + erradas + ':' + indefinidas; // resolvidas:erradas:indefinidas
 	if(retornarFormatado) return results;
-	results = results.replace(/(\d+):(\d+):(\d+)/, "$1 corretas(s)\n$2 errada(s)\n$3 não enviada(s)");
-
-	resolvidas = resolvidas + " resolvida(s); ";
-	erradas = erradas + " errada(s); ";
-	indefinidas = indefinidas + " indefinida(s).";
-
-	results = resolvidas + erradas + indefinidas;
+	results = `${resolvidas} correta(s)\n${erradas} errada(s)\n${indefinidas} indefinida(s)`;
 
 	return results;
 }
@@ -87,6 +82,7 @@ function status(retornarFormatado){
 })(status)
 function atualizarStatusBar(){ status.show(); }
 
+
 function corretas(){
 	var results="";
 	for(var i=0; i < qtd; i++){
@@ -102,8 +98,6 @@ function corretas(){
 	return results;
 }
 
-
-
 function erradas(){
 	var results="";
 	for(var i=0; i < qtd; i++){
@@ -114,15 +108,13 @@ function erradas(){
 			var pontos = '(' + questao.getElementsByClassName("question-grade")[0].innerHTML + ')';
 			var erro = "ERRO:" + '[' + questao.getElementsByClassName("file-status")[0].innerHTML + ']';
 
-			results += addAspas(titulo) + ' ' + erro + ' ' + pontos + "\n";
+			results += titulo.addAspas() + ' ' + erro + ' ' + pontos + "\n";
 		}
 	}
 	results = results.slice(0, -1).replace(regexRemoveHtml,"");
 
 	return results.slice(1, -1);
 }
-
-
 
 function pendentes(){
 	var results="";
@@ -132,14 +124,13 @@ function pendentes(){
 		if(status.localeCompare("undefined") == 0 || status.localeCompare("wrong") == 0){
 			var titulo = questao.getElementsByClassName("question-title")[0].innerHTML;
 			var pontos = '(' + questao.getElementsByClassName("question-grade")[0].innerHTML + ')';
-			results += addAspas(titulo) + ' ' + pontos + "\n";
+			results += titulo.addAspas() + ' ' + pontos + "\n";
 		}
 	}
 	results = results.slice(0, -1).replace(regexRemoveHtml,"");
 
 	return results;
 }
-
 
 
 function tituloQuestoes(mostrarNumero, mostrarArquivo){
@@ -153,11 +144,11 @@ function tituloQuestoes(mostrarNumero, mostrarArquivo){
 		var nomeArquivo = questao.getElementsByClassName("file")[0].getAttribute("file"); // .replace(/\.java/,"")
 
 		if(mostrarNumero)
-			titulo = titulo.replace(/Quest[^\d]*\s*(\d+)\s*[^\w]\s*(.*)/i, replacer);
+			titulo = titulo.replace(/Quest[^\d]*\s*(\d+)\s*[^\w]\s*(.*)/i, regexReplacerFormatado);
 		else
 			titulo = titulo.replace(/Quest[^\d]*\s*\d+\s*[^\w]\s*(.*)/i, "$1");
 
-		titulo = addAspas(titulo);
+		titulo.addAspas();
 		if(mostrarArquivo) titulo += " - " + nomeArquivo;
 
 		results += titulo + "\n";
@@ -198,7 +189,6 @@ function tituloQuestoes(mostrarNumero, mostrarArquivo){
 })(tituloQuestoes)
 
 
-
 function arquivosDasQuestoes(){
 	var results="";
 	for(var i=0; i < qtd; ++i)
@@ -206,7 +196,6 @@ function arquivosDasQuestoes(){
 
 	return results;
 }
-
 
 
 function toggleBar(){
@@ -244,17 +233,15 @@ function toggleBar(){
 
 
 
-
 // ========================= [ AUXILIARES ] ========================= //
 
-
-function addAspas(str){
-	return str.replace(/^(.*)$/, "\"$1\"");
+String.prototype.addAspas = function() {
+    return this.replace(/^(.*)$/, "\"$1\"");
 }
 
 
 // https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/String/replace
-function replacer(match, number, title){
+function regexReplacerFormatado(match, number, title){
 	return [number, title].join('_'); // => q_titulo da questao de numero q
 }
 
@@ -292,42 +279,35 @@ function createButton(id, title, element, func){
 
 // estado = {"right", "wrong", "undefined"}
 function maximizarStatus(estado, mostrar){
-
 	if(mostrar){
-		$('.question[status='+estado+']').show();
+		// $('.question[status='+estado+']').show();
+		$(`.question[status="${estado}"]`).show();
 		return;
 	}
 
 	$('div[status='+estado+']').each(function() {
-
 		$(this).find(".maximize").each(function() {
 			parent = $(this).parent();
 			$(this).remove();
 			labHeight = $(parent).data("labHeight");
-			$(parent).prepend("<div class='minimize'><img src='res/minimize.png'/></div>").animate( { height: labHeight }, 200, function() {
-				$(this).css("height", "auto");
-			});
+			$(parent).prepend("<div class='minimize'><img src='res/minimize.png'/></div>").animate( { height: labHeight }, 200, function(){ $(this).css("height", "auto");} );
      		});
-
 	});
 }
 
 function minimizarStatus(estado, esconder){
-
 	if(esconder){
-		$('.question[status="'+estado+'"]').hide();
+		// $('.question[status="'+estado+'"]').hide();
+		$(`.question[status="${estado}"]`).hide();
 		return;
 	}
-
 	$('div[status='+estado+']').each(function() {
-
 		$(this).find(".minimize").each(function(){
 			 parent = $(this).parent();
 			 $(this).remove();
 			 labHeight = $(parent).height();
 			 $(parent).data("labHeight", labHeight).prepend("<div class='maximize'><img src='res/maximize.png'/></div>").animate( { height:"30px" }, 200);
 		});
-
 	});
 }
 
@@ -364,11 +344,20 @@ function atualizarCoresQuestoesDialog(){
 		var questionTitleID = $(this).attr("id");
 		var cor = "lightgray";
 
-		statusDaQuestao = $('.question-title[id="'+ questionTitleID +'"]').parent().attr("status").toLocaleLowerCase();
+		// statusDaQuestao = $('.question-title[id="'+ questionTitleID +'"]').parent().attr("status").toLocaleLowerCase();
+		statusDaQuestao = $(`.question-title[id="${questionTitleID}"]`).parent().attr("status").toLocaleLowerCase();
 		if(statusDaQuestao == "right") cor = "green";
 		else if(statusDaQuestao == "wrong") cor = "red";
-		$('.titulo-questoes[id="' + questionTitleID +'"]').css("color", cor);
+		// $('.titulo-questoes[id="' + questionTitleID +'"]').css("color", cor);
+		$(`.titulo-questoes[id="${questionTitleID}"]`).css("color", cor);
 	});
+}
+
+
+function toggleBarraExtra(){
+	var barraExtra = $('#info-status');
+	if( barraExtra.is(":visible") ) barraExtra.hide(100);
+	else barraExtra.show(100);
 }
 
 
@@ -379,29 +368,23 @@ function atualizarCoresQuestoesDialog(){
 // define id para as questões e tabelas de diagramas UML.
 function initTitulosQuestoes(){
 	$('.question-title').each(function(index){
-		$(this).attr("id", index);
+		$(this).attr("id", index+1);
 	});
 	$('.question').each(function(index){
-		$(this).attr("id", 'questao'+(index+1));
-		$(this).find('.uml-class').attr("id", "uml-"+index);
+		$(this).attr("id", `questao${index+1}`);
+		$(this).find('.uml-class').attr("id", `uml-${index+1}`);
 	});
 }
 
 // inicializar alterações da grade.
 function initGrade(){
+	atualizarStatusBar();
   	document.getElementById('info-info-div').style.cursor = 'pointer';
 
-	$('.info-grade-line').click( function(){
-		var barraExtra = $('#info-status');
-		atualizarStatusBar();
-		if( barraExtra.is(":visible") ) barraExtra.hide(100);
-		else barraExtra.show(100);
+	$('#info-info').click( function(){ // $('.info-grade-line')
+		// atualizarStatusBar();
+		toggleBarraExtra();
 	});
-
-	// VERIFICAR:
-	// $('.file-status').change( function(){
-	// 	alert("ESTADO DO ARQUIVO alterado");
-	// });
 }
 
 // inicializar criações e inserções dos botões
@@ -471,15 +454,19 @@ function initCheckbox(){
 function initDialog(){
 	var barraGrande = document.getElementsByClassName('banner-table-title')[0];
 
-	var para = document.createElement("DIV");
+	var objetoPai = document.createElement("DIV");
 	var questoes="";
-	$('.question-title').each(function(index){ questoes += "<span class='titulo-questoes' id='"+index+"'>" +$(this).text()+  "<br></span>" ; });
-	para.innerHTML = questoes;
+	$('.question-title').each(function(index){
+		// questoes += "<span class='titulo-questoes' id='"+index+"'>" +$(this).text()+  "<br></span>";
+		// questoes += `<span class='titulo-questoes' id="${index}">${$(this).text()}<br></span>`;
+		questoes += `<a href="#questao${index+1}" id="${index+1}" class='titulo-questoes'>${$(this).text()}<br></a>`;
+	});
+	objetoPai.innerHTML = questoes;
 
 	var dia = document.createElement("DIV");
 	dia.title = atividade;
 	dia.id = "dialog-message";
-	dia.appendChild(para);
+	dia.appendChild(objetoPai);
 	document.head.appendChild(dia);
 
 	questoes = $('.question-title').text().replace(/quest/ig, "\n$&").substring(1);
@@ -506,11 +493,11 @@ function initDialog(){
 	// 	$('.question-title[id="4"]')
 	// $('.titulo-questoes[id="4"]')
 	$('.titulo-questoes').each(function(){ atualizarCoresQuestoesDialog(); });
-	$('.titulo-questoes').css('cursor', 'pointer');
+	// $('.titulo-questoes').css('cursor', 'pointer');
 
 	// Ao clicar na questão X de id X-1, vá para o objeto $('.question')[X-1]; $("span[id='0']") é a questão 1; .text() é o seu título.
 	$('.titulo-questoes').click(function(){
-		qid = $(this).attr("id");
+		var qid = $(this).attr("id");
 		$("#dialog-message").dialog("close");
 		goTo(qid);
 	});
@@ -522,10 +509,11 @@ function initParseUMLButton(){
 	$('.uml-class').each(function(){
 		var idCorrente = $(this).attr("id");
 		var tabelaCorrente = document.getElementById(idCorrente);
-		var buttonID = 'btnGetText-'+idCorrente;
+		var buttonID = `btnGetText-${idCorrente}`;
 		createButton(buttonID, "parse UML", document.getElementById(idCorrente));
 		$('#'+buttonID).click(function(){
 			var UMLtexto = getUMLtext(idCorrente);
+			console.log("=========== [ UML TRADUZIDO ] ===========");
 			console.log(UMLtexto);
 			alert(UMLtexto);
 		});
@@ -542,14 +530,33 @@ function initToggleColor(){
 	$("li").dblclick( function(){
 	  var corAtual = $(this).css('background-color');
 	  if(corAtual != "transparent") corAtual = "transparent";
-	  else corAtual = "#ffff7b";
+	  else corAtual = "#ffff7b"; // amarelado.
+
 	  $(this).css('background-color', corAtual);
 	})
 }
 
+function initKeyEvents(){
+	var ultimoDigitoValido = 48+qtd;
+
+	// (c) https://css-tricks.com/snippets/javascript/javascript-keycodes/
+	// (c) http://stackoverflow.com/questions/7999806/jquery-how-to-trigger-click-event-on-href-element
+	document.addEventListener("keydown", function(event) {
+		if(event.keyCode > 48 && event.keyCode <= ultimoDigitoValido){
+			var ultimoDigitoApertado = event.keyCode - 48;
+			var hyperlinkReferenceDigit = $(`.titulo-questoes[id=${ultimoDigitoApertado}]`).attr("href");
+			if(typeof hyperlinkReferenceDigit != typeof undefined)
+				window.location.href = hyperlinkReferenceDigit;
+		}
+		var ehOEsc = (event.keyCode == 27);
+		if(ehOEsc) toggleBarraExtra();
+	});
+
+
+}
+
 
 // ========================= [ NAO AUTORAIS ] ========================= //
-
 
 // (c) https://webdev.icomp.ufam.edu.br/lab/res/scripts.js
 function alterarFileupload() {
@@ -747,7 +754,7 @@ if(document.URL.search("webdev.icomp") != -1){
 
 	if(typeof DATA == typeof undefined)
 	 DATA = document.getElementsByTagName("DIV")[6].getElementsByTagName("DIV")[1].getElementsByTagName("DIV")[0]; // o banco de questões.
-	var qtd = DATA.getElementsByClassName("question").length; // quantidade de questões.
+	var qtd = DATA.getElementsByClassName("file-button-all").length; // quantidade de questões.
 	var regexRemoveHtml = new RegExp("<[^>]*>","g"); //// ==  /<[^>]*>/g
 	var atividade = document.getElementsByClassName('preface-title')[0].innerHTML;
 	var regexAtributos = new RegExp("(\\w+):\\s*(.+)"); // .replace(regexAtributos, "$2 $1;").trim();
@@ -770,6 +777,7 @@ if(document.URL.search("webdev.icomp") != -1){
 
 		alterarFileupload(); // adicona verificador de status para atualizar a barra de status quando a questão alterar de status.
 		initToggleColor(); // altera a cor de fundo dos objetos (da tag 'li') ao dar dois cliques sobre eles.
+		initKeyEvents();
 	});
 }
 else{
