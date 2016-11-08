@@ -466,7 +466,7 @@ function initDialog(){
 		var arquivoDaQuestao = $(this).attr("file");
 		var idLinkado = `#questao${index}`;
 		var pontosGrade = $(idLinkado).find('.question-grade').text().replaceAll(" ","");
-		questoes += `<a href="${idLinkado}" id="${index}" class='titulo-questoes'>${parentQuestionTitle.text()} (${arquivoDaQuestao}) = ${pontosGrade} <br></a>`;
+		questoes += `<a href="${idLinkado}" id="${index}" class='titulo-questoes'><b>${parentQuestionTitle.text()}</b> <i>(${arquivoDaQuestao})</i> ${(pontosGrade ? `= ${pontosGrade}` : "")}<br></a>`;
 
 	});
 	objetoPai.innerHTML = questoes;
