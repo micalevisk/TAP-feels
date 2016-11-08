@@ -27,6 +27,7 @@
 // FIXME:
 // ======
 // Atualizar cor no dialog quando for atualizar o status da questão (otimizar para nao precisar do .each).
+// Remover funções inativas.
 
 // TODO:
 // =====
@@ -471,7 +472,10 @@ function initDialog(){
 	  	var parentQuestionTitle = parentQuestion.find('.question-title');
 		var index = parentQuestionTitle.attr("id");
 		var arquivoDaQuestao = $(this).attr("file");
-		questoes += `<a href="#questao${index}" id="${index}" class='titulo-questoes'>${parentQuestionTitle.text()} (${arquivoDaQuestao})<br></a>`;
+		var idLinkado = `#questao${index}`;
+		var pontosGrade = $(idLinkado).find('.question-grade').text().replaceAll(" ","");
+		questoes += `<a href="${idLinkado}" id="${index}" class='titulo-questoes'>${parentQuestionTitle.text()} (${arquivoDaQuestao}) = ${pontosGrade} <br></a>`;
+
 	});
 	objetoPai.innerHTML = questoes;
 
@@ -484,23 +488,18 @@ function initDialog(){
 	questoes = $('.question-title').text().replace(/quest/ig, "\n$&").substring(1);
 	if( sistemaOperacional().indexOf("Win") != -1 ) questoes = questoes.replace(/$/mg, '\r');
 
-	createButton("opener", "questões", barraGrande);
-	$('#opener').click(function() {
-		$("#dialog-message").dialog({
-			width: 500,
-			maxWidth: 500,
-			maxHeight: 400,
-			modal: true,
-			buttons: {
-				Ok: function() {
-					$(this).dialog( "close" );
-				},
-				Baixar: function() {
-					console.save(questoes, atividade+'.txt');
+	createButton("btnQuestoes", "questões", barraGrande);
+	var dialogQuestoes = $("#dialog-message").dialog({
+				autoOpen: false,
+				resizable: false,
+				modal: true,
+				width: 'auto',
+				buttons: {
+					Ok: function(){ $(this).dialog( "close" ); },
+					Baixar: function(){ console.save(questoes, atividade+'.txt'); }
 				}
-			}
-		});
-	});
+			});
+	$('#btnQuestoes').click(function() { dialogQuestoes.dialog('open'); });
 
 	// 	$('.question-title[id="4"]')
 	// $('.titulo-questoes[id="4"]')
