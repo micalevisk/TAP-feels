@@ -39,6 +39,7 @@
 // http://stackoverflow.com/questions/179713/how-to-change-the-href-for-a-hyperlink-using-jquery
 // $('.question-title').each(function(index){ questoes += "<a href='#question4' class='titulo-questoes' id='"+index+"'>" +$(this).text()+ "<br></a>"; });
 // Marcar/desmarcar texto selecionado (nas questões);
+// http://mir3z.github.io/texthighlighter/
 // http://www.michaelpstone.net/development/jquery/highlight-and-capture-text-using-jquery/
 // https://www.sitepoint.com/10-jquery-text-highlighter-plugins/
 // Adicionar efeito "+X pontos", onde X corresponde aos pontos ganhos na questão enviada, que aparece e desaparece rapidamente (com .show.fadeOut(1000))
@@ -456,10 +457,21 @@ function initDialog(){
 
 	var objetoPai = document.createElement("DIV");
 	var questoes="";
+
+	/*
 	$('.question-title').each(function(index){
 		// questoes += "<span class='titulo-questoes' id='"+index+"'>" +$(this).text()+  "<br></span>";
 		// questoes += `<span class='titulo-questoes' id="${index}">${$(this).text()}<br></span>`;
 		questoes += `<a href="#questao${index+1}" id="${index+1}" class='titulo-questoes'>${$(this).text()}<br></a>`;
+	});
+	*/
+	// .each(function(){ console.log($(this).text()); })
+	$('.file-button-all').each(function(){
+		var parentQuestion = $(this).parent().parent().parent();
+	  	var parentQuestionTitle = parentQuestion.find('.question-title');
+		var index = parentQuestionTitle.attr("id");
+		var arquivoDaQuestao = $(this).attr("file");
+		questoes += `<a href="#questao${index}" id="${index}" class='titulo-questoes'>${parentQuestionTitle.text()} (${arquivoDaQuestao})<br></a>`;
 	});
 	objetoPai.innerHTML = questoes;
 
