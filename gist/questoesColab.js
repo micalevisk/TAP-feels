@@ -1,7 +1,7 @@
 /**
 *	Adiciona funcoes extras no colabweb da disciplina TAP (2016/2).
 *	@author Micael Levi L. C.
-*	@version 11-08-2016, 17:20 (GTM-0400)
+*	@version 11-08-2016, 17:43 (GTM-0400)
 *	http://bit.ly/colabhack
 *
 *	status()              	=> retorna a quantidade de questoes resolvidas, erradas e indefindas.
@@ -461,7 +461,7 @@ function initDialog(){
 
 	$('.file-button-all').each(function(){
 		var parentQuestion = $(this).parent().parent().parent();
-	  	var parentQuestionTitle = parentQuestion.find('.question-title');
+	  	var parentQuestionTitle = parentQuestion.find('.question-title').first();
 		var index = parentQuestionTitle.attr("id");
 		var arquivoDaQuestao = $(this).attr("file");
 		var idLinkado = `#questao${index}`;
