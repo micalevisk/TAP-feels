@@ -459,14 +459,6 @@ function initDialog(){
 	var objetoPai = document.createElement("DIV");
 	var questoes="";
 
-	/*
-	$('.question-title').each(function(index){
-		// questoes += "<span class='titulo-questoes' id='"+index+"'>" +$(this).text()+  "<br></span>";
-		// questoes += `<span class='titulo-questoes' id="${index}">${$(this).text()}<br></span>`;
-		questoes += `<a href="#questao${index+1}" id="${index+1}" class='titulo-questoes'>${$(this).text()}<br></a>`;
-	});
-	*/
-	// .each(function(){ console.log($(this).text()); })
 	$('.file-button-all').each(function(){
 		var parentQuestion = $(this).parent().parent().parent();
 	  	var parentQuestionTitle = parentQuestion.find('.question-title');
@@ -497,8 +489,7 @@ function initDialog(){
 				buttons: {
 					Ok: function(){ $(this).dialog( "close" ); },
 					Baixar: function(){ console.save(questoes, atividade+'.txt'); }
-				}
-			});
+				}});
 	$('#btnQuestoes').click(function() { dialogQuestoes.dialog('open'); });
 
 	// 	$('.question-title[id="4"]')
