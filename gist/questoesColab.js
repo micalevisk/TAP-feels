@@ -1,7 +1,7 @@
 /**
 *	Adiciona funcoes extras no colabweb da disciplina TAP (2016/2).
 *	@author Micael Levi L. C.
-*	@version 11-06-2016, 21:45 (GTM-0400)
+*	@version 11-08-2016, 17:20 (GTM-0400)
 *	http://bit.ly/colabhack
 *
 *	status()              	=> retorna a quantidade de questoes resolvidas, erradas e indefindas.
