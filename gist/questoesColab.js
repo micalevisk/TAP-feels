@@ -1,7 +1,7 @@
 /**
 *	Adiciona funcoes extras no colabweb da disciplina TAP (2016/2).
 *	@author Micael Levi L. C.
-*	@version 11-08-2016, 17:43 (GTM-0400)
+*	@version 11-10-2016, 17:43 (GTM-0400)
 *	http://bit.ly/colabhack
 *
 *	status()              	=> retorna a quantidade de questoes resolvidas, erradas e indefindas.
@@ -19,8 +19,8 @@
 * 	minimizarStatus()     	=> minimiza as questoes com o status passado.
 *	getUMLtext()		=> imprime o diagrama UML em modo texto (se existir).
 *
-* 	atividade             	=> variavel que contem o titulo da atividade.
-* 	qtd                   	=> variavel que contem a quantidade de questoes.
+* 	ATIVIDADE             	=> variavel que contem o titulo da ATIVIDADE.
+* 	QTD                   	=> variavel que contem a quantidade de questoes.
 **/
 
 
@@ -45,18 +45,13 @@
 // https://www.sitepoint.com/10-jquery-text-highlighter-plugins/
 // Adicionar efeito "+X pontos", onde X corresponde aos pontos ganhos na questão enviada, que aparece e desaparece rapidamente (com .show.fadeOut(1000))
 // https://api.jquery.com/select/
-// Adicionar "teclas de atalho" ao pressionar o Alt, para ativar os botões criados.
+// Adicionar "teclas de atalho" ao pressionar o Alt (ou, meta key = M), para ativar os botões criados.
+// Alterar exibição do parse UML para (ao clicar no botão) exibir uma caixa de texto para código Java, com opções de copiar, baixar e editar o código gerado (contento a classe completa).
 
 
 
 
 function status(retornarFormatado){
-	/*
-	var resolvidas = $('.question[status="right"]').length;
-	var erradas = $('.question[status="wrong"]').length;
-	var indefinidas = $('.question[status="undefined"]').length; // indefinidas = qtd - (resolvidas+erradas);
-	*/
-
 	var resolvidas = $('.file-button-all[status="ok"]').length;
 	var erradas = $('.file-button-all[status="error"]').length;
 	var indefinidas = $('.file-button-all[status="not-submitted"]').length;
@@ -69,25 +64,26 @@ function status(retornarFormatado){
 }
 (function(status){
 	status.show = function(naoMostrar){
-
-		if( createBar('info-status', 'info-grade-line', 'info-more') ){
-			$('#info-status').attr("colspan",5); // document.getElementById('info-status').setAttribute("colspan",5);
-			$('#info-status').attr("style", "text-align: center");
-			$('#info-status').css('font-size','12pt');
-			$('#info-status').html('<span><nobr id="info-info-status"></nobr></span>');
+		var idBar = 'info-status';
+		var objBar = $('#'+idBar);
+		if( createBar(idBar, 'info-grade-line', 'info-more') ){
+			objBar.attr("colspan",5); // document.getElementById('info-status').setAttribute("colspan",5);
+			objBar.attr("style", "text-align: center");
+			objBar.css('font-size','12pt');
+			objBar.html('<span><nobr id="info-info-status"></nobr></span>');
 		}
 
-		if(naoMostrar) $('#info-status').hide();
+		if(naoMostrar) objBar.hide();
 		var info = status(1).replace(/(\d+):(\d+):(\d+)/, "$1 resolvida(s) $2 errada(s) $3 não enviada(s)");
 		$('#info-info-status').html(info);
 	}
 })(status)
-function atualizarStatusBar(){ status.show(); }
+function atualizarStatusBar(naoMostrar){ status.show(naoMostrar); }
 
 
 function corretas(){
 	var results="";
-	for(var i=0; i < qtd; i++){
+	for(var i=0; i < QTD; i++){
 		var questao = DATA.getElementsByClassName("question")[i];
 		var status  = questao.getAttribute("status");
 		if(status.localeCompare("right") == 0){
@@ -95,14 +91,14 @@ function corretas(){
 			results += titulo.innerHTML + "\n";
 		}
 	}
-	results = results.slice(0, -1).replace(regexRemoveHtml,"");
+	results = results.slice(0, -1).replace(REGEX_REMOVE_HTML,"");
 
 	return results;
 }
 
 function erradas(){
 	var results="";
-	for(var i=0; i < qtd; i++){
+	for(var i=0; i < QTD; i++){
 		var questao = DATA.getElementsByClassName("question")[i];
 		var status  = questao.getAttribute("status");
 		if(status.localeCompare("wrong") == 0){
@@ -113,14 +109,14 @@ function erradas(){
 			results += titulo.addAspas() + ' ' + erro + ' ' + pontos + "\n";
 		}
 	}
-	results = results.slice(0, -1).replace(regexRemoveHtml,"");
+	results = results.slice(0, -1).replace(REGEX_REMOVE_HTML,"");
 
 	return results.slice(1, -1);
 }
 
 function pendentes(){
 	var results="";
-	for(var i=0; i < qtd; i++){
+	for(var i=0; i < QTD; i++){
 		var questao = DATA.getElementsByClassName("question")[i];
 		var status  = questao.getAttribute("status");
 		if(status.localeCompare("undefined") == 0 || status.localeCompare("wrong") == 0){
@@ -129,7 +125,7 @@ function pendentes(){
 			results += titulo.addAspas() + ' ' + pontos + "\n";
 		}
 	}
-	results = results.slice(0, -1).replace(regexRemoveHtml,"");
+	results = results.slice(0, -1).replace(REGEX_REMOVE_HTML,"");
 
 	return results;
 }
@@ -138,11 +134,10 @@ function pendentes(){
 function tituloQuestoes(mostrarNumero, mostrarArquivo){
 	var results="";
 
-	for(var i=0; i < qtd; i++){
+	for(var i=0; i < QTD; i++){
 		var questao = DATA.getElementsByClassName("question")[i];
 		var status  = questao.getAttribute("status");
 		var titulo = questao.getElementsByClassName("question-title")[0].innerHTML;
-		// var numeroQuestao = titulo.replace(/^[^\d]*(\d+).*/,"$1"); /// ou 'i'
 		var nomeArquivo = questao.getElementsByClassName("file")[0].getAttribute("file"); // .replace(/\.java/,"")
 
 		if(mostrarNumero)
@@ -156,44 +151,41 @@ function tituloQuestoes(mostrarNumero, mostrarArquivo){
 		results += titulo + "\n";
 	}
 
-	results = results.slice(0, -1).replace(regexRemoveHtml,"");
+	results = results.slice(0, -1).replace(REGEX_REMOVE_HTML,"");
 
 	return results;
 }
 (function(tituloQuestoes){
 	tituloQuestoes.save = function(mostrarNumero, mostrarArquivo){
-		var data = tituloQuestoes(mostrarNumero, mostrarArquivo)
+		var data = tituloQuestoes(mostrarNumero, mostrarArquivo);
 
 		if(!data){
-			console.error('tituloQuestoes.save: Nenhum dado foi retornado.')
+			console.error('tituloQuestoes.save: Nenhum dado foi retornado.');
 			return;
 		}
 
 		var date = new Date();
-		var sufix = "-" + date.getHours() + date.getMinutes() + ".txt"
-		var filename = atividade.replace(/oratório/, "").replace(/ /g,"") + sufix;
+		var sufix = "-" + date.getHours() + date.getMinutes() + ".txt";
+		var filename = ATIVIDADE.replace(/orat[óo]rio/, "").replace(/ /g,"") + sufix;
 
-		if(typeof data === "object"){
-			data = JSON.stringify(data, undefined, 4)
-		}
-
+		if(typeof data === "object") data = JSON.stringify(data, undefined, 4);
 		var blob = new Blob([data], {type: 'text'}),
 				e    = document.createEvent('MouseEvents'),
 				a    = document.createElement('a')
 
-		a.download = filename
-		a.href = window.URL.createObjectURL(blob)
-		a.dataset.downloadurl = ['text/json', a.download, a.href].join(':')
+		a.download = filename;
+		a.href = window.URL.createObjectURL(blob);
+		a.dataset.downloadurl = ['text', a.download, a.href].join(':');
 
-		e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
-		a.dispatchEvent(e)
+		e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+		a.dispatchEvent(e);
 	}
 })(tituloQuestoes)
 
 
 function arquivosDasQuestoes(){
 	var results="";
-	for(var i=0; i < qtd; ++i)
+	for(var i=0; i < QTD; ++i)
 		results += document.getElementsByClassName("file")[i].getAttribute("file") + "\n";
 
 	return results;
@@ -201,27 +193,17 @@ function arquivosDasQuestoes(){
 
 
 function toggleBar(){
-
-	/*
-	var data = $('.table-noborder').not('#info');
-	if( data.is(":visible") ) data.hide();
-	else data.show();
-	*/
-
 	if(document.getElementById('grade-skills') == null){
 		var styleBar = document.createElement('style');
 		styleBar.type = 'text/css';
 		styleBar.id = 'grade-skills';
 		styleBar.innerHTML = '.info-grade-skills { opacity: 0.5; }';
 		document.head.appendChild(styleBar);
-		// document.getElementsByTagName('head')[0].appendChild(styleBar);
 	}
 
 	var data = $('.info-grade-line');
 	if(data.hasClass('info-grade-skills')) data.removeClass('info-grade-skills');
 	else data.addClass('info-grade-skills');
-	// if(data.css("opacity") != 1) data.removeClass('info-grade-skills');
-	// else data.addClass('info-grade-skills');
 
 	return styleBar;
 }
@@ -250,17 +232,17 @@ function regexReplacerFormatado(match, number, title){
 
 // cria um table row e insere um table data com o id passado.
 function createBar(dataid, classe, rowid){
-	if(document.getElementById(dataid) != null) return false; // nao eh necessario criar
+	if(document.getElementById(dataid) != null) return false;
 	var tableRef = document.getElementById('info-info').getElementsByTagName('tbody')[0];
 	var newRow   = tableRef.insertRow(tableRef.rows.length);
 	newRow.id = rowid;
-	appendBar(dataid, classe, rowid);
+	appendTableDataOnBar(dataid, classe, rowid);
 
 	return true;
 }
 
 // cria e insere um table data com o id x, na table row de id y na posicao final.
-function appendBar(idx, classx, idy){
+function appendTableDataOnBar(idx, classx, idy){
 	var row =  document.getElementById(idy);
 	var newCell = row.insertCell(row.cells.length);
 	newCell.id = idx;
@@ -287,7 +269,7 @@ function maximizarStatus(estado, mostrar){
 		return;
 	}
 
-	$('div[status='+estado+']').each(function() {
+	$(`div[status=${estado}]`).each(function() {
 		$(this).find(".maximize").each(function() {
 			parent = $(this).parent();
 			$(this).remove();
@@ -303,7 +285,7 @@ function minimizarStatus(estado, esconder){
 		$(`.question[status="${estado}"]`).hide();
 		return;
 	}
-	$('div[status='+estado+']').each(function() {
+	$(`div[status=${estado}]`).each(function() {
 		$(this).find(".minimize").each(function(){
 			 parent = $(this).parent();
 			 $(this).remove();
@@ -315,7 +297,7 @@ function minimizarStatus(estado, esconder){
 
 
 // https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Guide/Regular_Expressions
-// TODO adicionar .save para exportar o output (que será tratado com um script).
+// TODO adicionar .save para exportar em outro formato.
 function getUMLtext(tblID){
 	if(tblID){
 		var linhas = [], tags = ["filename","attributes","methods"];  // admite que o diagrama possui 3 grupos distintos.
@@ -324,12 +306,15 @@ function getUMLtext(tblID){
 		$("#"+tblID).find('tbody').find('tr').each(function() {
 			var linha = $(this).text();
 			if(linha.length == 0){
-				if(i < tags.length){ linhas.push(" "); i++;	}
+				if(i < tags.length){
+					linhas.push(" ");
+					i++;
+				}
 			}
 			else{
-					if(linha.match(regexAtributos)) linha = linha.replace(regexAtributos, "$2 $1;").trim();
-					else if(linha.match(regexMetodos)) linha = linha.replace(regexMetodos,"$2 $1{}").trim();
-					if(!linhas.contains(linha)) linhas.push(linha);
+				if(linha.match(REGEX_ATRIBUTOS)) linha = linha.replace(REGEX_ATRIBUTOS, "$2 $1;").trim();
+				else if(linha.match(REGEX_METODOS)) linha = linha.replace(REGEX_METODOS,"$2 $1{}").trim();
+				if(!linhas.contains(linha)) linhas.push(linha);
 			}
 		});
 		linhas.shift(); // admitindo que o primeiro elemento é sempre o nome da classe, remove.
@@ -344,12 +329,13 @@ function getUMLtext(tblID){
 function atualizarCoresQuestoesDialog(){
 	$('.titulo-questoes').each(function(){
 		var questionTitleID = $(this).attr("id");
-		var cor = "lightgray";
+		// var cor = "lightgray";
+		var cor = CORES.indefinida;
 
 		// statusDaQuestao = $('.question-title[id="'+ questionTitleID +'"]').parent().attr("status").toLocaleLowerCase();
 		statusDaQuestao = $(`.question-title[id="${questionTitleID}"]`).parent().attr("status").toLocaleLowerCase();
-		if(statusDaQuestao == "right") cor = "green";
-		else if(statusDaQuestao == "wrong") cor = "red";
+		if(statusDaQuestao == "right") cor = CORES.correta;
+		else if(statusDaQuestao == "wrong") cor = CORES.errada;
 		// $('.titulo-questoes[id="' + questionTitleID +'"]').css("color", cor);
 		$(`.titulo-questoes[id="${questionTitleID}"]`).css("color", cor);
 	});
@@ -384,14 +370,14 @@ function initGrade(){
   	document.getElementById('info-info-div').style.cursor = 'pointer';
 
 	$('#info-info').click( function(){ // $('.info-grade-line')
-		// atualizarStatusBar();
 		toggleBarraExtra();
 	});
 }
 
 // inicializar criações e inserções dos botões
 function initBotoes(){
-	status.show(1);
+	atualizarStatusBar(1);
+
 	var barraGrande = document.getElementsByClassName('banner-table-title')[0];
 	createButton('btnToggleTransparencia', "toggle transparência", barraGrande, toggleBar); // id,title,element,funcOnClick
 	// createBar('info-toggle', 'info-grade-line', 'info-plus'); // id,class
@@ -405,7 +391,7 @@ function initBotoes(){
 			// lblAtual  := button innerHTML name
 			// max_min   := 'max' means maximizarStatus(), 'min' means minimizarStatus()
 
-			lblAtual = $(this).text();
+			var lblAtual = $(this).text();
 
 			if( lblAtual.search("esconder") != -1 ){
 				lblAtual = "mostrar";
@@ -416,7 +402,7 @@ function initBotoes(){
 				max_min = "minimizar";
 			}
 
-			funcNova = $('#btnToggleCorretas').attr("onclick").replace(/maximizar|minimizar/i, max_min);
+			var funcNova = $('#btnToggleCorretas').attr("onclick").replace(/maximizar|minimizar/i, max_min);
 			// $('#btnToggleCorretas').attr("onclick", funcNova);
 			$.ajax({
 				// (c) http://stackoverflow.com/questions/17987607/using-jquery-attr-or-prop-to-set-attribute-value-not-working
@@ -472,7 +458,7 @@ function initDialog(){
 	objetoPai.innerHTML = questoes;
 
 	var dia = document.createElement("DIV");
-	dia.title = atividade;
+	dia.title = ATIVIDADE;
 	dia.id = "dialog-message";
 	dia.appendChild(objetoPai);
 	document.head.appendChild(dia);
@@ -488,7 +474,7 @@ function initDialog(){
 				width: 'auto',
 				buttons: {
 					Ok: function(){ $(this).dialog( "close" ); },
-					Baixar: function(){ console.save(questoes, atividade+'.txt'); }
+					Baixar: function(){ console.save(questoes, ATIVIDADE+'.txt'); }
 				}});
 	$('#btnQuestoes').click(function() { dialogQuestoes.dialog('open'); });
 
@@ -515,7 +501,7 @@ function initParseUMLButton(){
 		createButton(buttonID, "parse UML", document.getElementById(idCorrente));
 		$('#'+buttonID).click(function(){
 			var UMLtexto = getUMLtext(idCorrente);
-			console.log("=========== [ UML TRADUZIDO ] ===========");
+			console.log("\n=========== [ UML TRADUZIDO ] ===========");
 			console.log(UMLtexto);
 			alert(UMLtexto);
 		});
@@ -532,14 +518,14 @@ function initToggleColor(){
 	$("li").dblclick( function(){
 	  var corAtual = $(this).css('background-color');
 	  if(corAtual != "transparent") corAtual = "transparent";
-	  else corAtual = "#ffff7b"; // amarelado.
+	  else corAtual = CORES.amarelado; // "#ffff7b"
 
 	  $(this).css('background-color', corAtual);
 	})
 }
 
 function initKeyEvents(){
-	var ultimoDigitoValido = 48+qtd;
+	var ultimoDigitoValido = 48+QTD;
 
 	// (c) https://css-tricks.com/snippets/javascript/javascript-keycodes/
 	// (c) http://stackoverflow.com/questions/7999806/jquery-how-to-trigger-click-event-on-href-element
@@ -550,7 +536,7 @@ function initKeyEvents(){
 			if(typeof hyperlinkReferenceDigit != typeof undefined)
 				window.location.href = hyperlinkReferenceDigit;
 		}
-		var ehOEsc = (event.keyCode == 27);
+		var ehOEsc = (event.keyCode == 27); // keycode da tecla Esc
 		if(ehOEsc) toggleBarraExtra();
 	});
 
@@ -731,8 +717,8 @@ function goTo(h){
 	window.scrollTo(0, top);
 	*/
 	$('html, body').animate({
-    scrollTop: $('#'+h).offset().top
-   }, 500);
+	    scrollTop: $('#'+h).offset().top
+	}, 500);
 }
 
 
@@ -755,13 +741,14 @@ Array.prototype.contains = function ( needle ) {
 if(document.URL.search("webdev.icomp") != -1){
 
 	if(typeof DATA == typeof undefined)
-	 DATA = document.getElementsByTagName("DIV")[6].getElementsByTagName("DIV")[1].getElementsByTagName("DIV")[0]; // o banco de questões.
-	var qtd = DATA.getElementsByClassName("file-button-all").length; // quantidade de questões.
-	var regexRemoveHtml = new RegExp("<[^>]*>","g"); //// ==  /<[^>]*>/g
-	var atividade = document.getElementsByClassName('preface-title')[0].innerHTML;
-	var regexAtributos = new RegExp("(\\w+):\\s*(.+)"); // .replace(regexAtributos, "$2 $1;").trim();
-	var regexMetodos   = new RegExp("(\\w+\\([^\\)]*\\))(?::\\s*(.+))?"); // .replace(regexMetodos,"$2 $1{}").trim();
+	 const DATA = document.getElementsByTagName("DIV")[6].getElementsByTagName("DIV")[1].getElementsByTagName("DIV")[0]; // o banco de questões.
+	const QTD = DATA.getElementsByClassName("file-button-all").length; // quantidade de questões.
+	const REGEX_REMOVE_HTML = new RegExp("<[^>]*>","g"); //// ==  /<[^>]*>/g
+	const ATIVIDADE = document.getElementsByClassName('preface-title')[0].innerHTML;
+	const REGEX_ATRIBUTOS = new RegExp("(\\w+):\\s*(.+)"); // .replace(REGEX_ATRIBUTOS, "$2 $1;").trim();
+	const REGEX_METODOS   = new RegExp("(\\w+\\([^\\)]*\\))(?::\\s*(.+))?"); // .replace(REGEX_METODOS,"$2 $1{}").trim();
 
+	const CORES = {"correta":'green', "ok":'green' , "errada":'red', "erro":'red', "indefinida":'lightgray', "desconhecida":'lightgray', "amarelado":'rgb(255, 255, 122)'};
 
 	$(document).ready(function() {
 
@@ -783,5 +770,5 @@ if(document.URL.search("webdev.icomp") != -1){
 	});
 }
 else{
-	alert("o script não pode ser injetado!");
+	alert("o script não foi injetado!");
 }

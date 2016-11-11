@@ -129,13 +129,13 @@ sub cor {
 	return "$_[0]$_[1]$NC";
 }
 
-sub showDetails{
+sub showDetails {
 	# system "sed -n '/%DETAILS=/,/);/{/%DETAILS=/b; /);/q; p;}' $nomeArquivo";
 	foreach my $key (sort (keys(%DETAILS))) { print cor($PURPLE, $key)," ",cor($WHITE, $DETAILS{$key}), "\n"; }
 	# while( my( $key, $value ) = each %DETAILS ){ print "$key: $value\n";	}
 }
 
-sub help{
+sub help {
 	print <<EOL;
 
 	USO:
@@ -144,7 +144,7 @@ sub help{
 
 	EXEMPLO DE USO:
 	===============
-	\$ perl $0 Mestre.java nome:String anoNascimento:int afiliacao:String posto:String
+	\$ perl $0 -q Mestre.java nome:String anoNascimento:int afiliacao:String posto:String
 
 	SAIDA:
 	======

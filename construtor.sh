@@ -161,7 +161,7 @@ _atributos(){
 
   ATRIBUTOS=($ATRIBUTOSstr);
 
-  [[ $QTD_ATT -ne ${#ATRIBUTOS[@]} ]] && { _showLogMessage "a quantidade de atributos não confere com a especificada pela tag"; exit 5; }
+  [[ $QTD_ATT -ne ${#ATRIBUTOS[@]} ]] && { _ERRO "a quantidade de atributos não confere com a especificada pela tag"; exit 5; }
 }
 
 
