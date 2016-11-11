@@ -5,14 +5,14 @@ use 5.018;
 use vars qw($VERSION %DETAILS);
 local $SIG{__WARN__} = sub { };  # Supress warnings.
 
-$VERSION = "1.25-0";
+$VERSION = "1.11-1";
 %DETAILS=(
 	author	=> 'Micael Levi',
-	contact	=> 'mllc@icomp.ufam.edu.br',
+	contact	=> 'mllc<a>icomp.ufam.edu.br',
 	name	=> 'constructorGenerator',
-	description	=> 'Imprime (STDOUT) um metodo construtor parametrizado, para codigos Java',
+	description	=> 'Imprime (STDOUT) um metodo construtor parametrizado, para codigos em Java',
 	url	=> 'http://github.com/micalevisk',
-	changed	=> '10-24-2016'
+	changed	=> '11-11-2016'
 );
 
 
@@ -82,7 +82,7 @@ $classe="$1";
 @PARAMETROS=split(/,/, $2);
 
 foreach (@PARAMETROS){
-	if( $_ !~ m/^(\w+)$delim(\w+)$/ ){ next; }
+	if( $_ !~ m/^([^$delim]+)$delim([^$delim]+)$/ ){ next; }
 	my $name = $1;
 	my $type = $2;
 	my $linha = "${identacao}this.$name = $name;";
