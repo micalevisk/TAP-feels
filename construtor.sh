@@ -1,5 +1,5 @@
 #!/bin/bash
-# //  v1.28-0
+# //  v1.12-1
 # //  Constroi e insere (ou retorna) automaticamente um metodo construtor de uma classe em qualquer codigo Java.
 # //  Created by Micael Levi on 10/23/2016
 # //  Copyright (c) 2016 mllc@icomp.ufam.edu.br; All rights reserved.
@@ -48,6 +48,7 @@ PROTOTIPO=""
 declare -i CONSTRUTOR_EXISTE=0
 declare -i QTD_CONSTRUTORES=0
 ARQ_CONSTRUTOR=""
+ATT_TAG="@att"
 # ------------------------------------------------------------------------- #
 
 
@@ -78,8 +79,8 @@ _ERRO(){
 _criarArquivoTempComConteudo(){
   _showLogMessage "CRIANDO ARQUIVO TEMPORÁRIO"
 
-
   local tempFile=$(mktemp "${TMPDIR:-/tmp/}XXXXXXXX.construtor");
+  [[ -w "$tempFile" ]] || { _ERRO "não foi possível criar o arquivo temporário."; exit 6; }
   printf "$1" > $tempFile;
   echo $tempFile;
 }
@@ -122,7 +123,7 @@ _help(){
 _especificacoes(){
   cat <<EOF
   1. Caso exista o construtor default, ele não deve conter escopos locais.
-  2. Um linha (comentada) com a TAG  "@attN"  deve anteceder as declarações dos atributos, onde "N" é a quantidade de atributos.
+  2. Um linha (comentada) com a TAG  "${ATT_TAG}N"  deve anteceder as declarações dos atributos, onde "N" é a quantidade de atributos.
   3. Os atributos da classe devem estar declarados UM por linha.
   4. Por padrão, os parâmetros são inseridos na ordem em que eles aparecem (na declaração).
 EOF
@@ -140,13 +141,13 @@ _atributos(){
   FILENAME=$(grep -Poie '\w+\.java' <<< ${FILEPATH} | sed -r 's/(.)/\U\1/');
   readonly NOME_CONSTRUTOR="${FILENAME%%.java}";
 
-  readonly ANALISE=$(grep -n -m1 -Po '(?<=@att)[[:blank:]]*(\d+)' ${FILEPATH}); ## <numeroDaLinha>:<quantidadeDeAtributos> DO ARQUIVO ORIGINAL
+  readonly ANALISE=$(grep -n -m1 -Po "(?<=${ATT_TAG})[[:blank:]]*(\d+)" ${FILEPATH}); ## <numeroDaLinha>:<quantidadeDeAtributos> DO ARQUIVO ORIGINAL
   [[ -z "$ANALISE" ]] && { _ERRO "a tag não foi encontrada"; _especificacoes; }
   QTD_ATT=$(grep -Po '(?<=:)[[:blank:]]*\d' <<< "$ANALISE"); # cut -d: -f2
 
   # ARQUIVO_TRATADO=$(_criarArquivoTempComConteudo "$CONTEUDO_TRATADO");
-  readonly ARQUIVO="$(sed -r "s/.*(@att[[:blank:]]*${QTD_ATT}).*/\1/1" ${FILEPATH} | ${binSed} ${REMOVER_COMENTARIOS} | sed '/^[[:blank:]]*$/d ; s/^[[:blank:]]*//')";
-  LINHA_TAG=$(sed -n "/@att[[:blank:]]*${QTD_ATT}/{=;q;}" <<< "${ARQUIVO}");
+  readonly ARQUIVO="$(sed -r "s/.*(${ATT_TAG}[[:blank:]]*${QTD_ATT}).*/\1/1" ${FILEPATH} | ${binSed} ${REMOVER_COMENTARIOS} | sed '/^[[:blank:]]*$/d ; s/^[[:blank:]]*//')";
+  LINHA_TAG=$(sed -n "/${ATT_TAG}[[:blank:]]*${QTD_ATT}/{=;q;}" <<< "${ARQUIVO}");
   [[ -z "$ARQUIVO" || $LINHA_TAG -eq 0 ]] && { _ERRO "erro ao ler linha da tag"; exit 4; }
 
   local linhaInicial=$((LINHA_TAG+1));      # linha em que se inicia as declarações.
@@ -175,7 +176,6 @@ _linhaConstrutor(){
   #1) Se o construtor default estiver presente (recupera a linha da última chave)
   LINHA_INSERCAO=$(sed -rn "/${NOME_CONSTRUTOR}[[:blank:]]*\(\)/ , /}/ =" ${FILEPATH} | tail -1);
   local lastLine=$(sed -n '$=' ${FILEPATH});
-  # LINHA_INSERCAO=$(grep -s -m1 -Poz "(?s)${NOME_CONSTRUTOR}\([[:blank:]]*\)[^}]+}" ${FILEPATH} | tail -1); #FIXME admite que não há outros escopos dentro do construtor default.
 
   if [ $LINHA_INSERCAO -ge $lastLine ]; then
           LINHA_INSERCAO=$((lastLine - 1));
@@ -206,14 +206,14 @@ _alterarArquivo(){
   #### [ CRIAR ARQUIVO TEMPORÁRIO CUJO O CONTEÚDO SEJA O CONSTRUTOR ] ####
   readonly ARQ_CONSTRUTOR=$(_criarArquivoTempComConteudo "\n$CONSTRUTOR\n");
   # cat $ARQ_CONSTRUTOR;
-  # local COMANDO_SED="${Delete:+"/@att[[:blank:]]*${QTD_ATT}/{d;q}; "} ${LINHA_INSERCAO}r ${ARQ_CONSTRUTOR}";
+  # local COMANDO_SED="${Delete:+"/${ATT_TAG}[[:blank:]]*${QTD_ATT}/{d;q}; "} ${LINHA_INSERCAO}r ${ARQ_CONSTRUTOR}";
   local COMANDO_SED="${LINHA_INSERCAO}r ${ARQ_CONSTRUTOR}";
   local OPTS_SED=
 
   #### [ INSERIR O CONSTRUTOR NO ARQUIVO PASSADO NA LINHA ENCONTRADA ] ####
   ((InPlace)) && OPTS_SED=-i${SUFIX}
   ((CONSTRUTOR_EXISTE)) && COMANDO_SED="";
-  ((Delete)) && COMANDO_SED="/@att[[:blank:]]*${QTD_ATT}/{d;q}; $COMANDO_SED";
+  ((Delete)) && COMANDO_SED="/${ATT_TAG}[[:blank:]]*${QTD_ATT}/{d;q}; $COMANDO_SED";
 
   sed $OPTS_SED -e "${COMANDO_SED}" "$FILEPATH";
 
