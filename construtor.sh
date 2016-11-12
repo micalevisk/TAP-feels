@@ -153,7 +153,8 @@ _atributos(){
   local linhaFinal=$((LINHA_TAG+QTD_ATT));  # linha que tem a última declaração.
 
   # ATRIBUTOSstr=$(sed -n "${linhaInicial} , ${linhaFinal} p" <<< "$ARQUIVO" | sed -r "s/(\w+)[[:blank:]]+(\w+)\W*/\2${sep}\1/");
-  ATRIBUTOSstr=$(sed -n "${linhaInicial} , ${linhaFinal} p" <<< "$ARQUIVO" | sed -r "s/[[:blank:]]+/${sep}/g" | sed -r "s/^[^${sep}]+${sep}([^${sep}]+)${sep}(.+)/\1${sep}\2/" | sed -r "s/^([^:]+):(.+);/\2${sep}\1/");
+  # ATRIBUTOSstr=$(sed -n "${linhaInicial} , ${linhaFinal} p" <<< "$ARQUIVO" | sed -r "s/[[:blank:]]+/${sep}/g" | sed -r "s/^[^${sep}]+${sep}([^${sep}]+)${sep}(.+)/\1${sep}\2/" | sed -r "s/^([^:]+):(.+);/\2${sep}\1/");
+  ATRIBUTOSstr=$(sed -n "${linhaInicial} , ${linhaFinal} p" <<< "$ARQUIVO" | sed -r 's/(default|public|private|protected|static)//g ; /final|=/d ; s/^[[:blank:]]+//' | sed -r "s/^([^[[:blank:]]+)[[:blank:]]+(\w+)[[:blank:]]*;/\2${sep}\1/");
   ## FIXME
   # use:  ((?:\w+\s+\w+)|(?:\w+))\s*(?:=\s*[^;,]+[;,])?
   # para obter apenas os nomes e tipos dos atributos no grupo 1; verificar se é apenas uma palavra, então tem o mesmo tipo que a anterior
@@ -173,11 +174,17 @@ _linhaConstrutor(){
 
   #1) Se o construtor default estiver presente (recupera a linha da última chave)
   LINHA_INSERCAO=$(sed -rn "/${NOME_CONSTRUTOR}[[:blank:]]*\(\)/ , /}/ =" ${FILEPATH} | tail -1);
+  local lastLine=$(sed -n '$=' ${FILEPATH});
+  # LINHA_INSERCAO=$(grep -s -m1 -Poz "(?s)${NOME_CONSTRUTOR}\([[:blank:]]*\)[^}]+}" ${FILEPATH} | tail -1); #FIXME admite que não há outros escopos dentro do construtor default.
 
-  #2) Se o construtor default não estiver no código (recupera a linha da última chave fechada)
-  # [[ $LINHA_INSERCAO -le 0 ]] && LINHA_INSERCAO=$(sed -n '/}/{ $b; =; }' ${FILEPATH} | tail -1);
-  [[ $LINHA_INSERCAO -le 0 ]] && { LINHA_INSERCAO=$(sed -n '/}/=' ${FILEPATH} | tail -1); ((--LINHA_INSERCAO)); }
-  [[ $LINHA_INSERCAO -le 0 ]] && { _ERRO "erro ao identificar a linha de inserção"; exit 6; }
+  if [ $LINHA_INSERCAO -ge $lastLine ]; then
+          LINHA_INSERCAO=$((lastLine - 1));
+  else
+          #2) Se o construtor default não estiver no código (recupera a linha da última chave fechada)
+          # [[ $LINHA_INSERCAO -le 0 ]] && LINHA_INSERCAO=$(sed -n '/}/{ $b; =; }' ${FILEPATH} | tail -1);
+          [[ $LINHA_INSERCAO -le 0 ]] && { LINHA_INSERCAO=$(sed -n '/}/=' ${FILEPATH} | tail -1); ((--LINHA_INSERCAO)); }
+          [[ $LINHA_INSERCAO -le 0 ]] && { _ERRO "erro ao identificar a linha de inserção"; exit 6; }
+  fi
 }
 
 
