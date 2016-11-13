@@ -126,9 +126,9 @@ sub cor {
 }
 
 sub showDetails {
-	# system "sed -n '/%DETAILS=/,/);/{/%DETAILS=/b; /);/q; p;}' $nomeArquivo";
-	foreach my $key (sort (keys(%DETAILS))) { print cor($PURPLE, $key)," ",cor($WHITE, $DETAILS{$key}), "\n"; }
-	# while( my( $key, $value ) = each %DETAILS ){ print "$key: $value\n";	}
+	# system "sed -n '/%HEADER=/,/);/{/%HEADER=/b; /);/q; p;}' $nomeArquivo";
+	foreach my $key (sort (keys(%HEADER))) { print cor($PURPLE, $key)," ",cor($WHITE, $HEADER{$key}), "\n"; }
+	# while( my( $key, $value ) = each %HEADER ){ print "$key: $value\n";	}
 }
 
 sub help {
