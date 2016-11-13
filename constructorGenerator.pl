@@ -26,9 +26,9 @@ my $WHITE="\033[40;37;1m";
 my $PURPLE="\033[0;35m";
 my $NC="\033[m";
 
-my $classe = "";# nome do construtor.
-my @PARAMETROS = ();# parâmetros do construtor.
-my @CORPO = ();# conteúdo do escopo do construtor.
+my $classe = "";	# nome do construtor.
+my @PARAMETROS = ();	# parâmetros do construtor.
+my @CORPO = ();		# conteúdo do escopo do construtor.
 my %MODIFICADORES_ACESSO = (0 => 'private', 1 => 'public', 2 => 'protected', 3 => 'default');
 my $modificador = "";
 my $identacao="\t\t";
@@ -36,7 +36,7 @@ my $identacao="\t\t";
 
 ################# [ DEFAULT ] #################
 my $delim=':';	# variableName${delim}typeVariable
-my $quiet=0;		# não inserir o 'Auto-generated'
+my $quiet=0;	# não inserir o 'Auto-generated'
 my $oneLine=0;	# a função terá apenas uma linha
 my $acesso='1';
 ###############################################
@@ -72,7 +72,7 @@ if($nArgs < 2){
 }
 
 my $argumentos = join("," ,@ARGV);
-if( $argumentos !~ m/(\w+)(?:\.java)?,(.+)/i ){ help(); }
+help(), if( $argumentos !~ m/(\w+)(?:\.java)?,(.+)/i );
 
 
 ####################################
@@ -82,7 +82,7 @@ $classe="$1";
 @PARAMETROS=split(/,/, $2);
 
 foreach (@PARAMETROS){
-	if( $_ !~ m/^([^$delim]+)$delim([^$delim]+)$/ ){ next; }
+	next, if( $_ !~ m/^([^$delim]+)$delim([^$delim]+)$/ );
 	my $name = $1;
 	my $type = $2;
 	my $linha = "${identacao}this.$name = $name;";
