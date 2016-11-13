@@ -1,7 +1,7 @@
 /**
 *	Adiciona funcoes extras no colabweb da disciplina TAP (2016/2).
 *	@author Micael Levi L. C.
-*	@version 11-10-2016, 17:43 (GTM-0400)
+*	@version 11-13-2016, 16:10 (GTM-0400)
 *	http://bit.ly/colabhack
 *
 *	status()              	=> retorna a quantidade de questoes resolvidas, erradas e indefindas.
@@ -12,7 +12,6 @@
 * 	tituloQuestoes()      	=> retorna o titulo de todas as questões (com o nome do arquivo/classe se o arguemento for 1 ou true).
 * 	tituloQuestoes.save() 	=> salva em um arquivo (e nao mostra no console) de nome 'tituloQuestoes-hhmm.txt'.
 * 	arquivosDasQuestoes() 	=> retorna os nomes dos arquivos de cada questao.
-* 	nota()                	=> retorna a sua nota atual.
 * 	toggleBar()           	=> altera a transparencia da barra de informacoes (menos/mais visivel, com transparencia 0.5).
 * 	toggleBar.opacity()   	=> altera a transparencia padrao da barra de informacoes.
 * 	maximizarStatus()     	=> maximiza as questoes com o status passado.
@@ -236,19 +235,29 @@ function createBar(dataid, classe, rowid){
 	var tableRef = document.getElementById('info-info').getElementsByTagName('tbody')[0];
 	var newRow   = tableRef.insertRow(tableRef.rows.length);
 	newRow.id = rowid;
-	appendTableDataOnBar(dataid, classe, rowid);
+	// appendTableDataOnBar(dataid, classe, rowid);
+
+	// cria e insere um table data com o id x, na table row de id y na posicao final.
+	var appendOnBar = function(idx, classx, idy){
+		var row =  document.getElementById(idy);
+		var newCell = row.insertCell(row.cells.length);
+		newCell.id = idx;
+		newCell.className = classx;
+	}
+
+	appendOnBar(dataid, classe, rowid);
 
 	return true;
 }
 
-// cria e insere um table data com o id x, na table row de id y na posicao final.
+/* @deprecated
 function appendTableDataOnBar(idx, classx, idy){
 	var row =  document.getElementById(idy);
 	var newCell = row.insertCell(row.cells.length);
 	newCell.id = idx;
 	newCell.className = classx;
 }
-
+*/
 
 function createButton(id, title, element, func){
 	if(document.getElementById(id) != null) return;
@@ -285,6 +294,7 @@ function minimizarStatus(estado, esconder){
 		$(`.question[status="${estado}"]`).hide();
 		return;
 	}
+
 	$(`div[status=${estado}]`).each(function() {
 		$(this).find(".minimize").each(function(){
 			 parent = $(this).parent();
@@ -349,9 +359,19 @@ function toggleBarraExtra(){
 }
 
 
+// atualiza a ação do botão toggleCorretas.
+function atualizarAcaoBotao(funcNova){
+	// (c) http://stackoverflow.com/questions/17987607/using-jquery-attr-or-prop-to-set-attribute-value-not-working
+	$.ajax({
+		success: function (result) {
+			$('#btnToggleCorretas').attr("onclick", funcNova);
+	    }
+	});
+}
+
+
 
 // ========================= [ INICIALIZADORES ] ========================= //
-
 
 // define id para as questões e tabelas de diagramas UML.
 function initTitulosQuestoes(){
@@ -393,7 +413,7 @@ function initBotoes(){
 
 			var lblAtual = $(this).text();
 
-			if( lblAtual.search("esconder") != -1 ){
+			if( lblAtual.search("esconder") >= 0 ){
 				lblAtual = "mostrar";
 				max_min = "maximizar";
 			}
@@ -403,15 +423,9 @@ function initBotoes(){
 			}
 
 			var funcNova = $('#btnToggleCorretas').attr("onclick").replace(/maximizar|minimizar/i, max_min);
-			// $('#btnToggleCorretas').attr("onclick", funcNova);
-			$.ajax({
-				// (c) http://stackoverflow.com/questions/17987607/using-jquery-attr-or-prop-to-set-attribute-value-not-working
-				success: function (result) {
-					$('#btnToggleCorretas').attr("onclick", funcNova);
-		            }
-		        });
+			atualizarAcaoBotao(funcNova);
 
-			$(this).html( $(this).text().replace(/\w+/, lblAtual) );
+			$(this).html( $(this).text().replace(/\w+/, lblAtual) ); // atualiza o texto do botão.
 	 	}
 	);
 }
@@ -426,15 +440,11 @@ function initCheckbox(){
 	checador.id = "cbCorretas";
 	checador.style.cursor = "pointer";
 	barraGrande.appendChild(checador);
+
 	$('#cbCorretas').change(function(){
-		estaMarcado = $(this).is(":checked");
-		funcNova = $('#btnToggleCorretas').attr("onclick").replace(/true|false/i, estaMarcado);
-		// $('#btnToggleCorretas').attr('onclick', funcNova);
-		$.ajax({
-			success: function (result) {
-				$('#btnToggleCorretas').attr("onclick", funcNova);
-		    }
-		});
+		var estaMarcado = $(this).is(":checked");
+		var funcNova = $('#btnToggleCorretas').attr("onclick").replace(/true|false/i, estaMarcado);
+		atualizarAcaoBotao(funcNova);
 	});
 }
 
@@ -464,7 +474,7 @@ function initDialog(){
 	document.head.appendChild(dia);
 
 	questoes = $('.question-title').text().replace(/quest/ig, "\n$&").substring(1);
-	if( sistemaOperacional().indexOf("Win") != -1 ) questoes = questoes.replace(/$/mg, '\r');
+	if( sistemaOperacional().indexOf("Win") >= 0 ) questoes = questoes.replace(/$/mg, '\r');
 
 	createButton("btnQuestoes", "questões", barraGrande);
 	var dialogQuestoes = $("#dialog-message").dialog({
@@ -478,7 +488,7 @@ function initDialog(){
 				}});
 	$('#btnQuestoes').click(function() { dialogQuestoes.dialog('open'); });
 
-	// 	$('.question-title[id="4"]')
+	// $('.question-title[id="4"]')
 	// $('.titulo-questoes[id="4"]')
 	$('.titulo-questoes').each(function(){ atualizarCoresQuestoesDialog(); });
 	// $('.titulo-questoes').css('cursor', 'pointer');
@@ -539,6 +549,7 @@ function initKeyEvents(){
 		if(ehOEsc) toggleBarraExtra();
 	});
 }
+
 
 
 // ========================= [ NAO AUTORAIS ] ========================= //
@@ -735,7 +746,7 @@ Array.prototype.contains = function ( needle ) {
 
 // ====================================== [ MAIN ] ====================================== //
 
-if(document.URL.search("webdev.icomp") != -1){
+if(document.URL.search("webdev.icomp") >= 0){
 
 	if(typeof DATA == typeof undefined)
 	 const DATA = document.getElementsByTagName("DIV")[6].getElementsByTagName("DIV")[1].getElementsByTagName("DIV")[0]; // o banco de questões.
