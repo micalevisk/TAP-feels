@@ -1,5 +1,5 @@
 #!/bin/bash
-# //  v1.12-1
+# //  v1.13-1
 # //  Constroi e insere (ou retorna) automaticamente um metodo construtor de uma classe em qualquer codigo Java.
 # //  Created by Micael Levi on 10/23/2016
 # //  Copyright (c) 2016 mllc@icomp.ufam.edu.br; All rights reserved.
@@ -17,10 +17,8 @@
 # --------------------[ CONFIGURAÇÕES ]-------------------- #
 readonly REMOVER_COMENTARIOS="removerComentarios.sed"
 readonly GERADOR_CONSTRUTOR="constructorGenerator.pl"
-readonly binSed="sed -nf"
+readonly binSed="sed -nf" # $(which sed) -nf
 readonly binPerl="perl"
-# readonly binSed="/usr/bin/sed -nf"
-# readonly binPerl="/usr/bin/perl"
 readonly sep=:
 # ----------------------------------------------------------- #
 
