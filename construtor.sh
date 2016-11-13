@@ -155,7 +155,8 @@ _atributos(){
 
   # ATRIBUTOSstr=$(sed -n "${linhaInicial} , ${linhaFinal} p" <<< "$ARQUIVO" | sed -r "s/(\w+)[[:blank:]]+(\w+)\W*/\2${sep}\1/");
   # ATRIBUTOSstr=$(sed -n "${linhaInicial} , ${linhaFinal} p" <<< "$ARQUIVO" | sed -r "s/[[:blank:]]+/${sep}/g" | sed -r "s/^[^${sep}]+${sep}([^${sep}]+)${sep}(.+)/\1${sep}\2/" | sed -r "s/^([^:]+):(.+);/\2${sep}\1/");
-  ATRIBUTOSstr=$(sed -n "${linhaInicial} , ${linhaFinal} p" <<< "$ARQUIVO" | sed -r 's/(default|public|private|protected|static)//g ; /final|=/d ; s/^[[:blank:]]+//' | sed -r "s/^([^[[:blank:]]+)[[:blank:]]+(\w+)[[:blank:]]*;/\2${sep}\1/");
+  # ATRIBUTOSstr=$(sed -n "${linhaInicial} , ${linhaFinal} p" <<< "$ARQUIVO" | sed -r 's/(default|public|private|protected|static)//g ; /final|=/d ; s/^[[:blank:]]+//' | sed -r "s/^([^[[:blank:]]+)[[:blank:]]+(\w+)[[:blank:]]*;/\2${sep}\1/");
+  ATRIBUTOSstr=$(sed -n "${linhaInicial} , ${linhaFinal} p" <<< "$ARQUIVO" | sed -r '/final|=/d ; s/^[[:blank:]]+//' | grep --color -Po '([\w<>]+)[[:blank:]]+(\w+)[[:blank:]]*;' | sed -r "s/^([^[[:blank:]]+)[[:blank:]]+(\w+)[[:blank:]]*;/\2${sep}\1/");
   ## FIXME
   # use:  ((?:\w+\s+\w+)|(?:\w+))\s*(?:=\s*[^;,]+[;,])?
   # para obter apenas os nomes e tipos dos atributos no grupo 1; verificar se é apenas uma palavra, então tem o mesmo tipo que a anterior

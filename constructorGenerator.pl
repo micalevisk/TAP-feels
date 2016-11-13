@@ -100,17 +100,13 @@ foreach (@PARAMETROS){
 print "\t";
 print "$modificador " if defined( $modificador = $MODIFICADORES_ACESSO{$acesso} );
 print "$classe(", join(", ", @PARAMETROS), ")"; ### prototipo.
+print "{";
 if($oneLine){
-	print "{";
-	print "\n";
-	print "\t// TODO Auto-generated constructor method.\n", if not $quiet;
 	print join("", @CORPO);
 }
 else{
-	print "{";
 	print "\n";
-	print "\t";
-	print "\t// TODO Auto-generated constructor method.\n", if not $quiet;
+	print "\t\t// TODO Auto-generated constructor method.\n", if not $quiet;
 	print join("\n", @CORPO);
 	printf "\n";
 }
