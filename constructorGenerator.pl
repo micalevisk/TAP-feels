@@ -2,17 +2,17 @@ use strict;
 use warnings;
 use Getopt::Std;
 use 5.018;
-use vars qw($VERSION %DETAILS);
+use vars qw($VERSION %HEADER);
 local $SIG{__WARN__} = sub { };  # Supress warnings.
 
-$VERSION = "1.11-1";
-%DETAILS=(
-	author	=> 'Micael Levi',
+$VERSION = "1.13-1";
+%HEADER=(
+	author	=> 'Micael Levi L. C.',
 	contact	=> 'mllc<a>icomp.ufam.edu.br',
 	name	=> 'constructorGenerator',
 	description	=> 'Imprime (STDOUT) um metodo construtor parametrizado, para codigos em Java',
 	url	=> 'http://github.com/micalevisk',
-	changed	=> '11-11-2016'
+	changed	=> '11-13-2016'
 );
 
 
