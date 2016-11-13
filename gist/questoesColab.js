@@ -508,13 +508,12 @@ function initParseUMLButton(){
 	});
 }
 
-
-// (c) https://api.jquery.com/dblclick/
 function initToggleColor(){
 	/* "highlight" objetos com a tag 'li' quando o cursor estiver em cima.
 	$("li").mouseover( function(){ $(this).css('background-color', 'yellow'); } )
 	$("li").hover( function(){ $(this).css('background-color', ''); } )
 	*/
+	// (c) https://api.jquery.com/dblclick/
 	$("li").dblclick( function(){
 	  var corAtual = $(this).css('background-color');
 	  if(corAtual != "transparent") corAtual = "transparent";
@@ -539,8 +538,6 @@ function initKeyEvents(){
 		var ehOEsc = (event.keyCode == 27); // keycode da tecla Esc
 		if(ehOEsc) toggleBarraExtra();
 	});
-
-
 }
 
 
