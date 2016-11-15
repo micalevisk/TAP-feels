@@ -30,6 +30,7 @@
 
 // TODO:
 // =====
+// Documentar todoas as funções.
 // Função para obter toda a questão (para exportar futuramente, como pdf).
 // $('#3').parents[0].textContent() retorna a questão 2 em forma de texto. OU $('#3').parent().text()
 // $("div[id='0']") é a questão 1; .parent().text() é o conteúdo.
@@ -46,6 +47,7 @@
 // https://api.jquery.com/select/
 // Adicionar "teclas de atalho" ao pressionar o Alt (ou, meta key = M), para ativar os botões criados.
 // Alterar exibição do parse UML para (ao clicar no botão) exibir uma caixa de texto para código Java, com opções de copiar, baixar e editar o código gerado (contento a classe completa).
+// Criar função inicializadora de estados; criar função que salva a configuração atual num arquivo .xml ou .json (vide scrub_ajax/); importar configurações de um arquivo remoto.
 
 
 
@@ -367,6 +369,13 @@ function atualizarAcaoBotao(funcNova){
 			$('#btnToggleCorretas').attr("onclick", funcNova);
 	    }
 	});
+}
+
+
+function alterarBotaoSair(){
+	var botaoSairObject = $('#info-sair').find("nobr");
+	var botaoSairInnerHTML = botaoSairObject.html();
+	botaoSairObject.html(botaoSairInnerHTML.replace(/sair/i, "Voltar"));
 }
 
 
@@ -760,10 +769,7 @@ if(document.URL.search("webdev.icomp") >= 0){
 
 	$(document).ready(function() {
 
-		// Altera o rótulo "Sair" para "Voltar" (manter coerência).
-		var botaoSairObject = $('#info-sair').find("nobr");
-		var botaoSairInnerHTML = botaoSairObject.html();
-		botaoSairObject.html(botaoSairInnerHTML.replace(/sair/i, "Voltar"));
+		alterarBotaoSair(); // Altera o rótulo "Sair" para "Voltar" (manter coerência).
 
 		initTitulosQuestoes();
 		initParseUMLButton();
