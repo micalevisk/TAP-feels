@@ -1,7 +1,7 @@
 /**
 *	Adiciona funcoes extras no colabweb da disciplina TAP (2016/2).
 *	@author Micael Levi L. C.
-*	@version 11-08-2016, 17:43 (GTM-0400)
+*	@version 11-18-2016, 15:20 (GTM-0400)
 *	http://bit.ly/colabhack
 *
 *	status()              	=> retorna a quantidade de questoes resolvidas, erradas e indefindas.
@@ -508,10 +508,12 @@ function initDialog(){
 
 // criando e setando botões nos diagramas.
 function initParseUMLButton(){
-	$('.uml-class').each(function(){
+  // (c) https://css-tricks.com/snippets/jquery/make-an-jquery-hasattr/
+	$('.uml-class').filter('[id]').each(function(){
 		var idCorrente = $(this).attr("id");
 		var tabelaCorrente = document.getElementById(idCorrente);
 		var buttonID = `btnGetText-${idCorrente}`;
+    
 		createButton(buttonID, "parse UML", document.getElementById(idCorrente));
 		$('#'+buttonID).click(function(){
 			var UMLtexto = getUMLtext(idCorrente);
@@ -519,6 +521,7 @@ function initParseUMLButton(){
 			console.log(UMLtexto);
 			alert(UMLtexto);
 		});
+    
 	});
 }
 
