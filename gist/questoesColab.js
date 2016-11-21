@@ -1,7 +1,7 @@
 /**
 *	Adiciona funcoes extras no colabweb da disciplina TAP (2016/2).
 *	@author Micael Levi L. C.
-*	@version 11-18-2016, 15:20 (GTM-0400)
+*	@version 11-21-2016, 13:20 (GTM-0400)
 *	http://bit.ly/colabhack
 *
 *	status()              	=> retorna a quantidade de questoes resolvidas, erradas e indefindas.
@@ -183,7 +183,7 @@ function tituloQuestoes(mostrarNumero, mostrarArquivo){
 
 		a.download = filename
 		a.href = window.URL.createObjectURL(blob)
-		a.dataset.downloadurl = ['text/json', a.download, a.href].join(':')
+		a.dataset.downloadurl = ['text/plain', a.download, a.href].join(':')
 
 		e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
 		a.dispatchEvent(e)
@@ -315,29 +315,48 @@ function minimizarStatus(estado, esconder){
 
 
 // https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Guide/Regular_Expressions
-// TODO adicionar .save para exportar o output (que será tratado com um script).
+var MOD_ACESSO = ["public", "private", "protected", "default"];
 function getUMLtext(tblID){
 	if(tblID){
-		var linhas = [], tags = ["filename","attributes","methods"];  // admite que o diagrama possui 3 grupos distintos.
-		var lblTag = "//@";
+		var linhas = [], tags = ["classname","attributes","methods"];  // admite que o diagrama possui 3 grupos distintos.
 		var i=1;
+		
 		$("#"+tblID).find('tbody').find('tr').each(function() {
-			var linha = $(this).text();
-			if(linha.length == 0){
-				if(i < tags.length){ linhas.push(" "); i++;	}
-			}
-			else{
-					if(linha.match(regexAtributos)) linha = linha.replace(regexAtributos, "$2 $1;").trim();
-					else if(linha.match(regexMetodos)) linha = linha.replace(regexMetodos,"$2 $1{}").trim();
-					if(!linhas.contains(linha)) linhas.push(linha);
-			}
+      
+      var children = $(this).children()
+      var linha = $(this).text();
+      
+      if(children.length > 1){
+
+				var iconeSVG = $(this).children().first();
+
+				// (c) http://api.jquery.com/jquery.each/        
+				var modificadorAcesso = "";
+				jQuery.each(MOD_ACESSO, function(i, val){
+				 if(iconeSVG.children().hasClass(val)){ // admite que os modificadores de acesso estão definidos nas classes das imagens.
+           modificadorAcesso = `${val} `;
+					 return false;
+				 }				 
+				})
+				
+				if(linha.match(regexAtributos)) linha = linha.replace(regexAtributos, "$2 $1;").trim();
+				else if(linha.match(regexMetodos)) linha = linha.replace(regexMetodos,"$2 $1{}").trim();
+				linha = `${modificadorAcesso}${linha}`
+				if(!linhas.contains(linha)) linhas.push(linha);
+     }
+     else{
+      if(linha.length == 0)
+       if(i < tags.length){ linhas.push(" "); i++;	}
+     }
+      
 		});
-		linhas.shift(); // admitindo que o primeiro elemento é sempre o nome da classe, remove.
-		linhas.shift();
 		// 		linhas = linhas.filter(v => v.length > 1);
 		// 		console.log( linhas.join("\n")  );
+		linhas.shift(); // remoção do nome da classe.
+		linhas.shift(); // remoção da quebra de linha resultante.
 		return linhas.join("\n");
 	}
+  return null;
 }
 
 
@@ -509,12 +528,16 @@ function initDialog(){
 // criando e setando botões nos diagramas.
 function initParseUMLButton(){
   // (c) https://css-tricks.com/snippets/jquery/make-an-jquery-hasattr/
-	$('.uml-class').filter('[id]').each(function(){
+	$('.uml-class[id]').each(function(){
 		var idCorrente = $(this).attr("id");
 		var tabelaCorrente = document.getElementById(idCorrente);
 		var buttonID = `btnGetText-${idCorrente}`;
     
-		createButton(buttonID, "parse UML", document.getElementById(idCorrente));
+		var parentUML = document.getElementById(idCorrente).parentElement;
+		var elementoAlvo = parentUML;
+		if("UMLCLASS".localeCompare(parentUML.nodeName) != 0) elementoAlvo = document.getElementById(idCorrente);
+		
+		createButton(buttonID, "parse UML", elementoAlvo);
 		$('#'+buttonID).click(function(){
 			var UMLtexto = getUMLtext(idCorrente);
 			console.log("=========== [ UML TRADUZIDO ] ===========");
@@ -764,7 +787,6 @@ if(document.URL.search("webdev.icomp") != -1){
 	var atividade = document.getElementsByClassName('preface-title')[0].innerHTML;
 	var regexAtributos = new RegExp("(\\w+):\\s*(.+)"); // .replace(regexAtributos, "$2 $1;").trim();
 	var regexMetodos   = new RegExp("(\\w+\\([^\\)]*\\))(?::\\s*(.+))?"); // .replace(regexMetodos,"$2 $1{}").trim();
-
 
 	$(document).ready(function() {
 
