@@ -1,7 +1,7 @@
 /**
 *	Adiciona funcoes extras no colabweb da disciplina TAP (2016/2).
 *	@author Micael Levi L. C.
-*	@version 11-13-2016, 16:10 (GTM-0400)
+*	@version 11-21-2016, 13:20 (GTM-0400)
 *	http://bit.ly/colabhack
 *
 *	status()              	=> retorna a quantidade de questoes resolvidas, erradas e indefindas.
@@ -65,16 +65,18 @@ function status(retornarFormatado){
 }
 (function(status){
 	status.show = function(naoMostrar){
-		var idBar = 'info-status';
-		var objBar = $('#'+idBar);
-		if( createBar(idBar, 'info-grade-line', 'info-more') ){
-			objBar.attr("colspan",5); // document.getElementById('info-status').setAttribute("colspan",5);
-			objBar.attr("style", "text-align: center");
-			objBar.css('font-size','12pt');
-			objBar.html('<span><nobr id="info-info-status"></nobr></span>');
+		var objBarID = 'info-status';
+		var $objBar = $('#'+objBarID);
+		if( createBar(objBarID, 'info-grade-line', 'info-more') ){
+			$objBar = $('#'+objBarID);
+
+			$objBar.attr("colspan",5); // document.getElementById('info-status').setAttribute("colspan",5);
+			$objBar.attr("style", "text-align: center");
+			$objBar.css('font-size','12pt');
+			$objBar.html('<span><nobr id="info-info-status"></nobr></span>');
 		}
 
-		if(naoMostrar) objBar.hide();
+		if(naoMostrar) $objBar.hide();
 		var info = status(1).replace(/(\d+):(\d+):(\d+)/, "$1 resolvida(s) $2 errada(s) $3 não enviada(s)");
 		$('#info-info-status').html(info);
 	}
@@ -177,6 +179,9 @@ function tituloQuestoes(mostrarNumero, mostrarArquivo){
 		a.download = filename;
 		a.href = window.URL.createObjectURL(blob);
 		a.dataset.downloadurl = ['text', a.download, a.href].join(':');
+		a.download = filename
+		a.href = window.URL.createObjectURL(blob)
+		a.dataset.downloadurl = ['text/plain', a.download, a.href].join(':')
 
 		e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
 		a.dispatchEvent(e);
@@ -252,14 +257,6 @@ function createBar(dataid, classe, rowid){
 	return true;
 }
 
-/* @deprecated
-function appendTableDataOnBar(idx, classx, idy){
-	var row =  document.getElementById(idy);
-	var newCell = row.insertCell(row.cells.length);
-	newCell.id = idx;
-	newCell.className = classx;
-}
-*/
 
 function createButton(id, title, element, func){
 	if(document.getElementById(id) != null) return;
@@ -309,32 +306,48 @@ function minimizarStatus(estado, esconder){
 
 
 // https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Guide/Regular_Expressions
-// TODO adicionar .save para exportar em outro formato.
 function getUMLtext(tblID){
 	if(tblID){
-		var linhas = [], tags = ["filename","attributes","methods"];  // admite que o diagrama possui 3 grupos distintos.
-		var lblTag = "//@";
+		var linhas = [], tags = ["classname","attributes","methods"];  // admite que o diagrama possui 3 grupos distintos.
 		var i=1;
+
 		$("#"+tblID).find('tbody').find('tr').each(function() {
+			var children = $(this).children();
 			var linha = $(this).text();
-			if(linha.length == 0){
-				if(i < tags.length){
-					linhas.push(" ");
-					i++;
-				}
+
+			if(children.length > 1){ // admite que o elemento tem pelo menos 2 objetos (o ícone e o nome)
+						var iconeSVG = $(this).children().first();
+
+						// (c) http://api.jquery.com/jquery.each/
+						var modificadorAcesso = "";
+						jQuery.each(MOD_ACESSO, function(i, val){
+							if(iconeSVG.children().hasClass(val)){ // admite que os modificadores de acesso estão definidos nas classes das imagens.
+				   	 			modificadorAcesso = `${val} `;
+								return false;
+							}
+						})
+
+						if(linha.match(REGEX_ATRIBUTOS)) linha = linha.replace(REGEX_ATRIBUTOS, "$2 $1;").trim();
+						else if(linha.match(REGEX_METODOS)) linha = linha.replace(REGEX_METODOS,"$2 $1{}").trim();
+						linha = `${modificadorAcesso}${linha}`
+						if(!linhas.contains(linha)) linhas.push(linha);
 			}
 			else{
-				if(linha.match(REGEX_ATRIBUTOS)) linha = linha.replace(REGEX_ATRIBUTOS, "$2 $1;").trim();
-				else if(linha.match(REGEX_METODOS)) linha = linha.replace(REGEX_METODOS,"$2 $1{}").trim();
-				if(!linhas.contains(linha)) linhas.push(linha);
+				if(linha.length == 0)
+					if(i < tags.length){
+						linhas.push(" ");
+						i++;
+					}
 			}
+
 		});
-		linhas.shift(); // admitindo que o primeiro elemento é sempre o nome da classe, remove.
-		linhas.shift();
 		// 		linhas = linhas.filter(v => v.length > 1);
 		// 		console.log( linhas.join("\n")  );
+		linhas.shift(); // remoção do nome da classe.
+		linhas.shift(); // remoção da quebra de linha resultante.
 		return linhas.join("\n");
 	}
+  return null;
 }
 
 
@@ -513,17 +526,24 @@ function initDialog(){
 
 // criando e setando botões nos diagramas.
 function initParseUMLButton(){
-	$('.uml-class').each(function(){
+  // (c) https://css-tricks.com/snippets/jquery/make-an-jquery-hasattr/
+	$('.uml-class[id]').each(function(){
 		var idCorrente = $(this).attr("id");
 		var tabelaCorrente = document.getElementById(idCorrente);
 		var buttonID = `btnGetText-${idCorrente}`;
-		createButton(buttonID, "parse UML", document.getElementById(idCorrente));
+
+		var parentUML = document.getElementById(idCorrente).parentElement;
+		var elementoAlvo = parentUML;
+		if("UMLCLASS".localeCompare(parentUML.nodeName) != 0) elementoAlvo = document.getElementById(idCorrente);
+
+		createButton(buttonID, "parse UML", elementoAlvo);
 		$('#'+buttonID).click(function(){
 			var UMLtexto = getUMLtext(idCorrente);
 			console.log("\n=========== [ UML TRADUZIDO ] ===========");
 			console.log(UMLtexto);
 			alert(UMLtexto);
 		});
+
 	});
 }
 
@@ -758,14 +778,15 @@ Array.prototype.contains = function ( needle ) {
 if(document.URL.search("webdev.icomp") >= 0){
 
 	if(typeof DATA == typeof undefined)
-	 const DATA = document.getElementsByTagName("DIV")[6].getElementsByTagName("DIV")[1].getElementsByTagName("DIV")[0]; // o banco de questões.
-	const QTD = DATA.getElementsByClassName("file-button-all").length; // quantidade de questões.
-	const REGEX_REMOVE_HTML = new RegExp("<[^>]*>","g"); //// ==  /<[^>]*>/g
-	const ATIVIDADE = document.getElementsByClassName('preface-title')[0].innerHTML;
-	const REGEX_ATRIBUTOS = new RegExp("(\\w+):\\s*(.+)"); // .replace(REGEX_ATRIBUTOS, "$2 $1;").trim();
-	const REGEX_METODOS   = new RegExp("(\\w+\\([^\\)]*\\))(?::\\s*(.+))?"); // .replace(REGEX_METODOS,"$2 $1{}").trim();
+	 var DATA = document.getElementsByTagName("DIV")[6].getElementsByTagName("DIV")[1].getElementsByTagName("DIV")[0]; // o banco de questões.
+	var QTD = DATA.getElementsByClassName("file-button-all").length; // quantidade de questões.
+	var REGEX_REMOVE_HTML = new RegExp("<[^>]*>","g"); //// ==  /<[^>]*>/g
+	var ATIVIDADE = document.getElementsByClassName('preface-title')[0].innerHTML;
+	var REGEX_ATRIBUTOS = new RegExp("(\\w+):\\s*(.+)"); // .replace(REGEX_ATRIBUTOS, "$2 $1;").trim();
+	var REGEX_METODOS   = new RegExp("(\\w+\\([^\\)]*\\))(?::\\s*(.+))?"); // .replace(REGEX_METODOS,"$2 $1{}").trim();
 
-	const CORES = {"correta":'green', "ok":'green' , "errada":'red', "erro":'red', "indefinida":'lightgray', "desconhecida":'lightgray', "amarelado":'rgb(255, 255, 122)'};
+	var CORES = {"correta":'green', "ok":'green' , "errada":'red', "erro":'red', "indefinida":'lightgray', "desconhecida":'lightgray', "amarelado":'rgb(255, 255, 122)'};
+	var MOD_ACESSO = ["public", "private", "protected", "default"];
 
 	$(document).ready(function() {
 
