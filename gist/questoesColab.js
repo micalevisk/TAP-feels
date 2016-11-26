@@ -27,6 +27,8 @@
 // ======
 // Atualizar cor no dialog quando for atualizar o status da questão (otimizar para nao precisar do .each).
 // Remover funções inativas.
+// Otimizar getUMLtext.
+// Ao recuperar os titulos das questoes initDialog.
 
 // TODO:
 // =====
@@ -312,12 +314,14 @@ function getUMLtext(tblID){
 		var i=1;
 
 		$("#"+tblID).find('tbody').find('tr').each(function() {
+			var chaves = "{}";
 			var children = $(this).children();
 			var linha = $(this).text();
 
 			if(children.length > 1){ // admite que o elemento tem pelo menos 2 objetos (o ícone e o nome)
 						var iconeSVG = $(this).children().first();
 
+						/// FIXME otimizar esta parte (não usar for each):
 						// (c) http://api.jquery.com/jquery.each/
 						var modificadorAcesso = "";
 						jQuery.each(MOD_ACESSO, function(i, val){
@@ -326,18 +330,27 @@ function getUMLtext(tblID){
 								return false;
 							}
 						})
+						jQuery.each(SEM_IMPLEMENTAR, function(i, val){
+							if(iconeSVG.children().hasClass(val)){ // admite que os modificadores de acesso estão definidos nas classes das imagens.
+				   	 			chaves = ";";
+								return false;
+							}
+						})
 
-						if(linha.match(REGEX_ATRIBUTOS)) linha = linha.replace(REGEX_ATRIBUTOS, "$2 $1;").trim();
-						else if(linha.match(REGEX_METODOS)) linha = linha.replace(REGEX_METODOS,"$2 $1{}").trim();
-						linha = `${modificadorAcesso}${linha}`
+
+						if(linha.match(REGEX_ATRIBUTOS))
+							linha = linha.replace(REGEX_ATRIBUTOS, "$2 $1;");
+						else if(linha.match(REGEX_METODOS))
+							linha = linha.replace(REGEX_METODOS,"$2 $1"+chaves);
+
+						linha = `${modificadorAcesso}${linha}`.trim();
 						if(!linhas.contains(linha)) linhas.push(linha);
 			}
 			else{
-				if(linha.length == 0)
-					if(i < tags.length){
-						linhas.push(" ");
-						i++;
-					}
+				if((linha.trim().length == 0) && (i < tags.length)){
+					linhas.push(" ");
+					i++;
+				}
 			}
 
 		});
@@ -354,14 +367,12 @@ function getUMLtext(tblID){
 function atualizarCoresQuestoesDialog(){
 	$('.titulo-questoes').each(function(){
 		var questionTitleID = $(this).attr("id");
-		// var cor = "lightgray";
 		var cor = CORES.indefinida;
 
-		// statusDaQuestao = $('.question-title[id="'+ questionTitleID +'"]').parent().attr("status").toLocaleLowerCase();
-		statusDaQuestao = $(`.question-title[id="${questionTitleID}"]`).parent().attr("status").toLocaleLowerCase();
-		if(statusDaQuestao == "right") cor = CORES.correta;
-		else if(statusDaQuestao == "wrong") cor = CORES.errada;
-		// $('.titulo-questoes[id="' + questionTitleID +'"]').css("color", cor);
+		// var statusDaQuestao = $(`.question-title[id="${questionTitleID}"]`).parent().attr("status").toLocaleLowerCase().trim();
+		var statusDaQuestao = $('#questao'+questionTitleID).find('.file-button-all').attr("status");
+		if(statusDaQuestao == STATUS.correta) cor = CORES.correta;
+		else if(statusDaQuestao == STATUS.errada) cor = CORES.errada;
 		$(`.titulo-questoes[id="${questionTitleID}"]`).css("color", cor);
 	});
 }
@@ -477,6 +488,7 @@ function initDialog(){
 	var objetoPai = document.createElement("DIV");
 	var questoes="";
 
+	// FIXME ir do botão ao parent com id 'question-title' para obter o título
 	$('.file-button-all').each(function(){
 		var parentQuestion = $(this).parent().parent().parent();
 	  	var parentQuestionTitle = parentQuestion.find('.question-title').first();
@@ -536,13 +548,15 @@ function initParseUMLButton(){
 		var elementoAlvo = parentUML;
 		if("UMLCLASS".localeCompare(parentUML.nodeName) != 0) elementoAlvo = document.getElementById(idCorrente);
 
-		createButton(buttonID, "parse UML", elementoAlvo);
-		$('#'+buttonID).click(function(){
-			var UMLtexto = getUMLtext(idCorrente);
-			console.log("\n=========== [ UML TRADUZIDO ] ===========");
-			console.log(UMLtexto);
-			alert(UMLtexto);
-		});
+		if(elementoAlvo != null){
+			createButton(buttonID, "parse UML", elementoAlvo);
+			$('#'+buttonID).click(function(){
+				var UMLtexto = getUMLtext(idCorrente).trim();
+				console.info(`\n=========== [UML TRADUZIDO DA QUESTÃO ${idCorrente.replace(/[^\d]+(\d+)/, "$1")}] ===========`);
+				console.log(UMLtexto);
+				alert(UMLtexto);
+			});
+		}
 
 	});
 }
@@ -787,6 +801,8 @@ if(document.URL.search("webdev.icomp") >= 0){
 
 	var CORES = {"correta":'green', "ok":'green' , "errada":'red', "erro":'red', "indefinida":'lightgray', "desconhecida":'lightgray', "amarelado":'rgb(255, 255, 122)'};
 	var MOD_ACESSO = ["public", "private", "protected", "default"];
+	var SEM_IMPLEMENTAR = ["abstract"];
+	var STATUS = {"correta":'ok', "errada":'error'}; // atributo de acordo com classe 'file-button-all'
 
 	$(document).ready(function() {
 
