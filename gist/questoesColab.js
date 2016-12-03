@@ -786,7 +786,7 @@ var REGEX_METODOS   = new RegExp("(\\w+\\([^\\)]*\\))(?::\\s*(.+))?"); // .repla
 var CORES = {"correta":'green', "ok":'green' , "errada":'red', "erro":'red', "indefinida":'lightgray', "desconhecida":'lightgray', "amarelado":'rgb(255, 255, 122)'};
 var MOD_ACESSO = ["public", "private", "protected", "default"];
 
-window.onload = function(e) {
+$(document).ready(function() {
 
 	alterarBotaoSair(); // Altera o rótulo "Sair" para "Voltar" (manter coerência).
 
