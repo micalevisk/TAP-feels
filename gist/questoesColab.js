@@ -1,7 +1,7 @@
 /**
 *	Adiciona funcoes extras no colabweb da disciplina TAP (2016/2).
 *	@author Micael Levi L. C.
-*	@version 11-21-2016, 13:20 (GTM-0400)
+*	@version 12-03-2016, 09:30 (GTM-0400)
 *	http://bit.ly/colabhack
 *
 *	status()              	=> retorna a quantidade de questoes resolvidas, erradas e indefindas.
@@ -538,8 +538,8 @@ function initParseUMLButton(){
 
 		createButton(buttonID, "parse UML", elementoAlvo);
 		$('#'+buttonID).click(function(){
-			var UMLtexto = getUMLtext(idCorrente);
-			console.log("\n=========== [ UML TRADUZIDO ] ===========");
+			var UMLtexto = getUMLtext(idCorrente).trim();
+			console.info(`\n=========== [UML TRADUZIDO DA QUESTÃO ${idCorrente.replace(/[^\d]+(\d+)/, "$1")}] ===========`);
 			console.log(UMLtexto);
 			alert(UMLtexto);
 		});
@@ -775,35 +775,30 @@ Array.prototype.contains = function ( needle ) {
 
 // ====================================== [ MAIN ] ====================================== //
 
-if(document.URL.search("webdev.icomp") >= 0){
 
-	if(typeof DATA == typeof undefined)
-	 var DATA = document.getElementsByTagName("DIV")[6].getElementsByTagName("DIV")[1].getElementsByTagName("DIV")[0]; // o banco de questões.
-	var QTD = DATA.getElementsByClassName("file-button-all").length; // quantidade de questões.
-	var REGEX_REMOVE_HTML = new RegExp("<[^>]*>","g"); //// ==  /<[^>]*>/g
-	var ATIVIDADE = document.getElementsByClassName('preface-title')[0].innerHTML;
-	var REGEX_ATRIBUTOS = new RegExp("(\\w+):\\s*(.+)"); // .replace(REGEX_ATRIBUTOS, "$2 $1;").trim();
-	var REGEX_METODOS   = new RegExp("(\\w+\\([^\\)]*\\))(?::\\s*(.+))?"); // .replace(REGEX_METODOS,"$2 $1{}").trim();
+if(typeof DATA == typeof undefined) var DATA = document.getElementsByTagName("DIV")[6].getElementsByTagName("DIV")[1].getElementsByTagName("DIV")[0]; // o banco de questões.
+var QTD = DATA.getElementsByClassName("file-button-all").length; // quantidade de questões.
+var REGEX_REMOVE_HTML = new RegExp("<[^>]*>","g"); //// ==  /<[^>]*>/g
+var ATIVIDADE = document.getElementsByClassName('preface-title')[0].innerHTML;
+var REGEX_ATRIBUTOS = new RegExp("(\\w+):\\s*(.+)"); // .replace(REGEX_ATRIBUTOS, "$2 $1;").trim();
+var REGEX_METODOS   = new RegExp("(\\w+\\([^\\)]*\\))(?::\\s*(.+))?"); // .replace(REGEX_METODOS,"$2 $1{}").trim();
 
-	var CORES = {"correta":'green', "ok":'green' , "errada":'red', "erro":'red', "indefinida":'lightgray', "desconhecida":'lightgray', "amarelado":'rgb(255, 255, 122)'};
-	var MOD_ACESSO = ["public", "private", "protected", "default"];
+var CORES = {"correta":'green', "ok":'green' , "errada":'red', "erro":'red', "indefinida":'lightgray', "desconhecida":'lightgray', "amarelado":'rgb(255, 255, 122)'};
+var MOD_ACESSO = ["public", "private", "protected", "default"];
 
-	$(document).ready(function() {
+window.onload = function(e) {
 
-		alterarBotaoSair(); // Altera o rótulo "Sair" para "Voltar" (manter coerência).
+	alterarBotaoSair(); // Altera o rótulo "Sair" para "Voltar" (manter coerência).
 
-		initTitulosQuestoes();
-		initParseUMLButton();
-		initGrade();
-		initBotoes();
-		initCheckbox();
-		initDialog();
+	initTitulosQuestoes();
+	initParseUMLButton();
+	initGrade();
+	initBotoes();
+	initCheckbox();
+	initDialog();
 
-		alterarFileupload(); // adicona verificador de status para atualizar a barra de status quando a questão alterar de status.
-		initToggleColor(); // altera a cor de fundo dos objetos (da tag 'li') ao dar dois cliques sobre eles.
-		initKeyEvents();
-	});
-}
-else{
-	alert("o script não foi injetado!");
-}
+	alterarFileupload(); // adicona verificador de status para atualizar a barra de status quando a questão alterar de status.
+	initToggleColor(); // altera a cor de fundo dos objetos (da tag 'li') ao dar dois cliques sobre eles.
+	initKeyEvents();
+
+});
