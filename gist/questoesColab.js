@@ -5,7 +5,7 @@
 *	http://bit.ly/colabhack
 *
 *	status()              	=> retorna a quantidade de questoes resolvidas, erradas e indefindas.
-* 	atualizarStatusBar()	=> (cria e) insere retorno da funcao 'status' na barra de informacoes.
+*	atualizarStatusBar()	=> (cria e) insere retorno da funcao 'status' na barra de informacoes.
 *	corretas()	      	=> retorna o titulo das questoes corrigidas.
 *	erradas()	      	=> retorna o titulo das questoes erradas.
 *	pendentes()	      	=> retorna o titulo das questoes pendentes (nao enviadas ou erradas).
@@ -21,34 +21,6 @@
 * 	ATIVIDADE             	=> variavel que contem o titulo da ATIVIDADE.
 * 	QTD                   	=> variavel que contem a quantidade de questoes.
 **/
-
-
-// FIXME:
-// ======
-// Atualizar cor no dialog quando for atualizar o status da questão (otimizar para nao precisar do .each).
-// Remover funções inativas.
-
-// TODO:
-// =====
-// Documentar todoas as funções.
-// Função para obter toda a questão (para exportar futuramente, como pdf).
-// $('#3').parents[0].textContent() retorna a questão 2 em forma de texto. OU $('#3').parent().text()
-// $("div[id='0']") é a questão 1; .parent().text() é o conteúdo.
-// Auto minimizar a questão quando status mudar para right
-// $('.file-status').change(function(){ console.log( $(this).attr("status") ) })
-// Alterar o click do botão que vai para questão, por um href com o id da questão. (#questionQ)
-// http://stackoverflow.com/questions/179713/how-to-change-the-href-for-a-hyperlink-using-jquery
-// $('.question-title').each(function(index){ questoes += "<a href='#question4' class='titulo-questoes' id='"+index+"'>" +$(this).text()+ "<br></a>"; });
-// Marcar/desmarcar texto selecionado (nas questões);
-// http://mir3z.github.io/texthighlighter/
-// http://www.michaelpstone.net/development/jquery/highlight-and-capture-text-using-jquery/
-// https://www.sitepoint.com/10-jquery-text-highlighter-plugins/
-// Adicionar efeito "+X pontos", onde X corresponde aos pontos ganhos na questão enviada, que aparece e desaparece rapidamente (com .show.fadeOut(1000))
-// https://api.jquery.com/select/
-// Adicionar "teclas de atalho" ao pressionar o Alt (ou, meta key = M), para ativar os botões criados.
-// Alterar exibição do parse UML para (ao clicar no botão) exibir uma caixa de texto para código Java, com opções de copiar, baixar e editar o código gerado (contento a classe completa).
-// Criar função inicializadora de estados; criar função que salva a configuração atual num arquivo .xml ou .json (vide scrub_ajax/); importar configurações de um arquivo remoto.
-
 
 
 
@@ -305,7 +277,7 @@ function minimizarStatus(estado, esconder){
 }
 
 
-// https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Guide/Regular_Expressions
+//FIXME identificar todos os tipos de atributos
 function getUMLtext(tblID){
 	if(tblID){
 		var linhas = [], tags = ["classname","attributes","methods"];  // admite que o diagrama possui 3 grupos distintos.
@@ -316,21 +288,21 @@ function getUMLtext(tblID){
 			var linha = $(this).text();
 
 			if(children.length > 1){ // admite que o elemento tem pelo menos 2 objetos (o ícone e o nome)
-						var iconeSVG = $(this).children().first();
+				var iconeSVG = $(this).children().first();
 
-						// (c) http://api.jquery.com/jquery.each/
-						var modificadorAcesso = "";
-						jQuery.each(MOD_ACESSO, function(i, val){
-							if(iconeSVG.children().hasClass(val)){ // admite que os modificadores de acesso estão definidos nas classes das imagens.
-				   	 			modificadorAcesso = `${val} `;
-								return false;
-							}
-						})
+				// (c) http://api.jquery.com/jquery.each/
+				var modificadorAcesso = "";
+				jQuery.each(MOD_ACESSO, function(i, val){
+					if(iconeSVG.children().hasClass(val)){ // admite que os modificadores de acesso estão definidos nas classes das imagens.
+		   	 			modificadorAcesso = `${val} `;
+						return false;
+					}
+				})
 
-						if(linha.match(REGEX_ATRIBUTOS)) linha = linha.replace(REGEX_ATRIBUTOS, "$2 $1;").trim();
-						else if(linha.match(REGEX_METODOS)) linha = linha.replace(REGEX_METODOS,"$2 $1{}").trim();
-						linha = `${modificadorAcesso}${linha}`
-						if(!linhas.contains(linha)) linhas.push(linha);
+				if(linha.match(REGEX_ATRIBUTOS)) linha = linha.replace(REGEX_ATRIBUTOS, "$2 $1;").trim();
+				else if(linha.match(REGEX_METODOS)) linha = linha.replace(REGEX_METODOS,"$2 $1{}").trim();
+				linha = `${modificadorAcesso}${linha}`
+				if(!linhas.contains(linha)) linhas.push(linha);
 			}
 			else{
 				if(linha.length == 0)
@@ -347,7 +319,7 @@ function getUMLtext(tblID){
 		linhas.shift(); // remoção da quebra de linha resultante.
 		return linhas.join("\n");
 	}
-  return null;
+	return null;
 }
 
 
@@ -409,7 +381,7 @@ function initTitulosQuestoes(){
 // inicializar alterações da grade.
 function initGrade(){
 	atualizarStatusBar();
-  	document.getElementById('info-info-div').style.cursor = 'pointer';
+	document.getElementById('info-info-div').style.cursor = 'pointer';
 
 	$('#info-info').click( function(){ // $('.info-grade-line')
 		toggleBarraExtra();
@@ -526,7 +498,7 @@ function initDialog(){
 
 // criando e setando botões nos diagramas.
 function initParseUMLButton(){
-  // (c) https://css-tricks.com/snippets/jquery/make-an-jquery-hasattr/
+	// (c) https://css-tricks.com/snippets/jquery/make-an-jquery-hasattr/
 	$('.uml-class[id]').each(function(){
 		var idCorrente = $(this).attr("id");
 		var tabelaCorrente = document.getElementById(idCorrente);
@@ -536,6 +508,8 @@ function initParseUMLButton(){
 		var elementoAlvo = parentUML;
 		if("UMLCLASS".localeCompare(parentUML.nodeName) != 0) elementoAlvo = document.getElementById(idCorrente);
 
+		///TODO botão horizontal do tamanho da tabela
+		// "<tr><td colspan='2'><input type='button' class='button' value='parse UML' style='width:100%;'  id=`${buttonID}` /></td></tr>"
 		createButton(buttonID, "parse UML", elementoAlvo);
 		$('#'+buttonID).click(function(){
 			var UMLtexto = getUMLtext(idCorrente).trim();
@@ -730,22 +704,6 @@ console.save = function(data, filename){
 })(console)
 
 
-// (c) http://www.javascripter.net/faq/operatin.htm
-// (c) http://stackoverflow.com/questions/7044944/jquery-javascript-to-detect-os-without-a-plugin
-function sistemaOperacional(){
-	/*
-	var OSName="";
-	if (navigator.appVersion.indexOf("Win")!=-1) OSName="Windows";
-	if (navigator.appVersion.indexOf("Mac")!=-1) OSName="MacOS";
-	if (navigator.appVersion.indexOf("X11")!=-1) OSName="UNIX";
-	if (navigator.appVersion.indexOf("Linux")!=-1) OSName="Linux";
-	return OSName;
-	*/
-
-	return navigator.platform; // {Win32, Linux x86_64, Mac}
-}
-
-
 // (c) http://stackoverflow.com/questions/13735912/anchor-jumping-by-using-javascript
 // (c) http://stackoverflow.com/questions/6677035/jquery-scroll-to-element
 function goTo(h){
@@ -765,10 +723,13 @@ function goTo(h){
 // this is a special variable that refers to "this" instance of an Array.
 // returns true if needle is in the array, and false otherwise
 Array.prototype.contains = function ( needle ) {
-   for (i in this) {
-       if (this[i] == needle) return true;
-   }
-   return false;
+	return (this.indexOf(needle) > -1);
+	/*
+	for (i in this) {
+	if (this[i] == needle) return true;
+	}
+	return false;
+	*/
 }
 
 
