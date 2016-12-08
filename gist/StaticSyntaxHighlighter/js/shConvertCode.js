@@ -27,7 +27,8 @@ function staticallyConvertCode(codigoTexto, nomeDoArquivo)
         //the textarea.  If the less-than character is not escaped, then the textarea might be prematurely
         //closed.  If the ampersand character is not escaped, then '&lt;' in the source code will be replaced
         //by the less-than character when displayed via the view plain command.
-        var originalCode = document.sourcecodeform.sourcecode.value.replace(/&/g,'&amp;').replace(/</g,'&lt;'); ////// <<<<<<<<<< o código, como string, gerado pelo getUMLText
+        // var originalCode = document.sourcecodeform.sourcecode.value.replace(/&/g,'&amp;').replace(/</g,'&lt;'); ////// <<<<<<<<<< o código, como string, gerado pelo getUMLText
+        var originalCode = codigoTexto.replace(/&/g,'&amp;').replace(/</g,'&lt;');
 
         //Reset the current pre code area
         document.getElementById('codearea').innerHTML = "<pre name=\"code\" class=\""+classString+"\"></pre>";
@@ -39,7 +40,8 @@ function staticallyConvertCode(codigoTexto, nomeDoArquivo)
         dp.SyntaxHighlighter.HighlightAll('code');
 
         //Thirdly, we need to inject the header to the highlighted code if neccessary.
-        header = document.sourcecodeform.header.value; ////// <<<<<<<<<< nome do arquivo .java
+        // header = document.sourcecodeform.header.value; ////// <<<<<<<<<< nome do arquivo .java
+        header = nomeDoArquivo;
         el = getCodeElement('\\btools\\b');
         // el.innerHTML = "<div class=\"header\">"+header+"</div>" + el.innerHTML;
         el.innerHTML = `<div class=\"header\">${header}</div>${el.innerHTML}`;
@@ -58,7 +60,8 @@ function staticallyConvertCode(codigoTexto, nomeDoArquivo)
         var codigoConvertido = `<div class=\"${highlightedClassName}\">${highlightedElement.innerHTML}</div>`; ////// <<<<<<<<<< o resultado HTML do código
         document.getElementById('result').value = codigoConvertido;
 
-        // return codigoConvertido;
+        // console.info(codigoConvertido);
+        return codigoConvertido;
 }
 
 
