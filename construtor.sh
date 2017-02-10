@@ -141,7 +141,7 @@ _atributos(){
 
   readonly ANALISE=$(grep -n -m1 -Po "(?<=${ATT_TAG})[[:blank:]]*(\d+)" ${FILEPATH}); ## <numeroDaLinha>:<quantidadeDeAtributos> DO ARQUIVO ORIGINAL
   [[ -z "$ANALISE" ]] && { _ERRO "a tag não foi encontrada"; _especificacoes; }
-  QTD_ATT=$(grep -Po '(?<=:)[[:blank:]]*\d' <<< "$ANALISE"); # cut -d: -f2
+  QTD_ATT=$(grep -Po '(?<=:)[[:blank:]]*\d+' <<< "$ANALISE"); # cut -d: -f2
 
   # ARQUIVO_TRATADO=$(_criarArquivoTempComConteudo "$CONTEUDO_TRATADO");
   readonly ARQUIVO="$(sed -r "s/.*(${ATT_TAG}[[:blank:]]*${QTD_ATT}).*/\1/1" ${FILEPATH} | ${binSed} ${REMOVER_COMENTARIOS} | sed '/^[[:blank:]]*$/d ; s/^[[:blank:]]*//')";
